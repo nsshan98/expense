@@ -1,10 +1,64 @@
-"use client"
-import React, { useState } from 'react';
-import { Eye, EyeOff, Wallet, TrendingUp, DollarSign, PieChart, ArrowRight, Lock, Mail } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import { Button } from "@/components/atoms/button";
+import { Input } from "@/components/atoms/input";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/atoms/form";
+import { DollarSign, Eye, EyeOff, Loader2, MailIcon, Lock, PieChart, TrendingUp, Wallet } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginSchemaType } from "@/zod/auth-schema";
+import Link from "next/link";
+import { signIn } from "@/lib/auth";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/atoms/input-group";
+
 
 export default function LoginComponent() {
+
+    const loginForm = useForm<LoginSchemaType>({
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+        resolver: zodResolver(loginSchema),
+    });
+
+    const { isSubmitting } = loginForm.formState;
+
     const [showPassword, setShowPassword] = useState(false);
+    const [globalError, setGlobalError] = useState<string>("");
+
+    const onSubmit = async (data: LoginSchemaType) => {
+        setGlobalError("");
+        const formData = new FormData();
+        formData.append("email", data.email);
+        formData.append("password", data.password);
+
+        const result = await signIn(undefined, formData);
+
+        console.log(result);
+
+        if (result?.error) {
+            if (result.error.email) {
+                loginForm.setError("email", { message: result.error.email[0] });
+            }
+            if (result.error.password) {
+                loginForm.setError("password", { message: result.error.password[0] });
+            }
+        }
+        if (result?.message) {
+            setGlobalError(result.message);
+        }
+    };
 
     return (
         <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center relative overflow-hidden font-sans">
@@ -37,69 +91,96 @@ export default function LoginComponent() {
                     <p className="text-gray-500 mt-2 text-sm">Login to your Expense Tracker Account</p>
                 </div>
 
-                <form className="space-y-6">
-                    <div className="space-y-2">
-                        <label htmlFor="email" className="text-sm font-medium text-gray-700 block text-left">
-                            Email or Username
-                        </label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                                id="email"
-                                type="text"
-                                placeholder="you@example.com"
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-400 text-sm"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <Link
-                                href="/auth/forgot-password"
-                                className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                            >
-                                Forgot Password?
-                            </Link>
-                        </div>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input
-                                id="password"
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="Enter your password"
-                                className="w-full pl-10 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-gray-900 placeholder:text-gray-400 text-sm"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 group"
+                <Form {...loginForm}>
+                    <form
+                        onSubmit={loginForm.handleSubmit(onSubmit)}
+                        className="space-y-4"
                     >
-                        Login
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </form>
+                        <div className="flex flex-col gap-6">
+                            {globalError && (
+                                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                                    {globalError}
+                                </div>
+                            )}
+                            <FormField
+                                control={loginForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email</FormLabel>
+                                        <FormControl>
+                                            <InputGroup>
+                                                <InputGroupInput type="email" placeholder="Enter your email" {...field} />
+                                                <InputGroupAddon>
+                                                    <MailIcon />
+                                                </InputGroupAddon>
+                                            </InputGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={loginForm.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Password</FormLabel>
+                                        <FormControl>
+                                            <InputGroup>
+                                                <InputGroupInput type={showPassword ? "text" : "password"} placeholder="********" {...field} />
+                                                <InputGroupAddon>
+                                                    <Lock />
+                                                </InputGroupAddon>
+                                                <InputGroupAddon align={'inline-end'}>
+                                                    {showPassword ? (
+                                                        <EyeOff
+                                                            size={15}
+                                                            onClick={() => setShowPassword(!showPassword)}
+                                                        />
+                                                    ) : (
+                                                        <Eye
+                                                            size={15}
+                                                            onClick={() => setShowPassword(!showPassword)}
+                                                        />
+                                                    )}
+                                                </InputGroupAddon>
+                                            </InputGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
 
-                <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500">
-                        Don&apos;t have an account?{' '}
-                        <Link href="/auth/signup" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                            Sign Up
-                        </Link>
-                    </p>
-                </div>
+                        {/* Submit Button */}
+                        <Button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md mt-6"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    Logging in...
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                </>
+                            ) : (
+                                "Login"
+                            )}
+                        </Button>
+
+                        {/* Login Link */}
+                        <p className="text-center text-sm text-gray-600 mt-4">
+                            Don’t have account?{" "}
+                            <Link
+                                href="/auth/sign-up"
+                                className="text-blue-600 hover:underline font-medium"
+                            >
+                                Sign up
+                            </Link>
+                        </p>
+                    </form>
+                </Form>
             </div>
         </div>
     );
