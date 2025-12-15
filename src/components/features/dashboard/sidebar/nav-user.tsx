@@ -25,6 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/atoms/sidebar";
+import { signOut } from "@/lib/auth";
 
 export default function NavUser({
   user,
@@ -98,7 +99,7 @@ export default function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={async () => await signOut()}>
               <LogOut />
               Log out
             </DropdownMenuItem>

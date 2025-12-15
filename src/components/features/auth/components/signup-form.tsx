@@ -15,26 +15,22 @@ import {
   FormMessage,
 } from "@/components/atoms/form";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/atoms/input-group";
-import { Eye, EyeOff, CheckCircle2, CircleX, Wallet, PieChart, TrendingUp, DollarSign, MailIcon, Lock, Loader2 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle2, CircleX, Wallet, PieChart, TrendingUp, DollarSign, UserRound, MailIcon, Lock, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, SignupSchemaType } from "@/zod/auth-schema";
 import Link from "next/link";
-
-interface PasswordCriteria {
-  lowercase: boolean;
-  uppercase: boolean;
-  number: boolean;
-  special: boolean;
-  length: boolean;
-}
+import { useCreateUser } from "../hooks/auth-query";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 
 const SignupForm = () => {
+  const router = useRouter()
+  const { createUserMutation } = useCreateUser()
   const signupForm = useForm<SignupSchemaType>({
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      phone_number: "",
+      name: "",
       email: "",
       password: {
         newPassword: "",
@@ -51,21 +47,33 @@ const SignupForm = () => {
   const [giveConsent, setGiveConsent] = useState(false);
 
   const onSubmit = async (data: SignupSchemaType) => {
-    // await createUserMutation.mutateAsync(data, {
-    //   onSuccess: () => {
-    //     toast.success("User created successfully!");
-    //     router.push("/dashboard");
-    //     // You can redirect the user or show a success message here
-    //   },
-    //   onError: (error) => {
-    //     if (isAxiosError(error)) {
-    //       toast.error(
-    //         error.response?.data?.message ||
-    //           "Error creating user. Please try again."
-    //       );
-    //     }
-    //   },
-    // });
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password.newPassword,
+    };
+    await createUserMutation.mutateAsync(payload, {
+      onSuccess: () => {
+        toast.success("User created successfully!");
+        router.push("/dashboard");
+        // You can redirect the user or show a success message here
+      },
+      onError: (error: Error) => {
+        if (isAxiosError(error)) {
+          const errorMessage = error.response?.data?.message;
+
+          if (typeof errorMessage === "string") {
+            toast.error(errorMessage);
+          } else if (Array.isArray(errorMessage)) {
+            toast.error(errorMessage.join(", "));
+          } else if (typeof errorMessage === "object" && errorMessage?.message) {
+            toast.error(String(errorMessage.message));
+          } else {
+            toast.error("Error creating user. Please try again.");
+          }
+        }
+      },
+    });
     console.log("Form submitted with data:", data);
   };
 
@@ -108,13 +116,31 @@ const SignupForm = () => {
             <div className="flex flex-col gap-6">
               <FormField
                 control={signupForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <InputGroup>
+                        <InputGroupInput type="text" placeholder="Enter your name" {...field} />
+                        <InputGroupAddon>
+                          <UserRound />
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={signupForm.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <InputGroup>
-                        <InputGroupInput type="email" placeholder="Enter your email" />
+                        <InputGroupInput type="email" placeholder="Enter your email" {...field} />
                         <InputGroupAddon>
                           <MailIcon />
                         </InputGroupAddon>

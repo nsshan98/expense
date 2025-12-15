@@ -6,14 +6,12 @@ export const loginSchema = z.object({
 });
 
 export const signupSchema = z.object({
-  first_name: z.string().min(1, "First Name is required"),
-  last_name: z.string().min(1, "Last Name is required"),
-  phone_number: z.string().min(1, "Phone Number is required"),
+  name: z.string().min(1, "Name is required"),
   email: z.email(),
   password: z
     .object({
-      newPassword: z.string().min(8, "Password Must Be 8 Characters Long"),
-      confirmPassword: z.string().min(8, "Password Must Be 8 Characters Long"),
+      newPassword: z.string().min(4, "Password Must Be 4 Characters Long"),
+      confirmPassword: z.string().min(4, "Password Must Be 4 Characters Long"),
     })
     .refine((data) => data.newPassword === data.confirmPassword, {
       message: "Password Not Matched",

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { createSession } from "./session";
+import { createSession, deleteSession } from "./session";
 import { FormState, LoginFormSchema } from "./type";
 
 export async function signIn(
@@ -20,35 +20,52 @@ export async function signIn(
     };
   }
 
-  const response = await fetch(
-    `${process.env.API_SERVER_BASE_URL}/auth/login`,
-    {
+  const url = `${process.env.API_SERVER_BASE_URL}/auth/login`;
+  console.log("Attempting login to:", url);
+
+  let shouldRedirect = false;
+
+  try {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(validatedFields.data),
-    }
-  );
-
-  if (response.ok) {
-    const result = await response.json();
-    // TODO: Create The Session For Authenticated User.
-
-    await createSession({
-      user: {
-        id: String(result.userId),
-        name: result.name || "User",
-      },
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
     });
-    redirect("/dashboard");
-  } else {
+
+    console.log("Login response status:", response.status);
+
+    if (response.ok) {
+      const result = await response.json();
+      // TODO: Create The Session For Authenticated User.
+
+      await createSession({
+        user: {
+          id: String(result.userId),
+          name: result.name || "User",
+        },
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      });
+      shouldRedirect = true;
+    } else {
+      const errorText = await response.text();
+      console.error("Login failed:", errorText);
+      return {
+        message:
+          response.status === 401 ? "Invalid Credentials!" : `Login failed: ${response.statusText}`,
+      };
+    }
+  } catch (error) {
+    console.error("Login error:", error);
     return {
-      message:
-        response.status === 401 ? "Invalid Credentials!" : response.statusText,
+      message: "Something went wrong. Please try again.",
     };
+  }
+
+  if (shouldRedirect) {
+    redirect("/dashboard");
   }
 }
 
@@ -88,3 +105,8 @@ export const refreshToken = async (oldRefreshToken: string) => {
     return null;
   }
 };
+
+export async function signOut() {
+  await deleteSession();
+  redirect("/auth/login");
+}

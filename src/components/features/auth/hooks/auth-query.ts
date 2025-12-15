@@ -5,8 +5,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 // ===============================|| SIGN UP ||============================== //
 const useCreateUser = () => {
   const createUserMutation = useMutation({
-    mutationFn: async (data: SignupSchemaType) => {
-      return axiosClient.post("/user/signup/", data, {
+    mutationFn: async (data: { name: string; email: string; password: string }) => {
+      return axiosClient.post("/auth/register", data, {
         headers: {
           "Content-Type": "application/json",
         },
