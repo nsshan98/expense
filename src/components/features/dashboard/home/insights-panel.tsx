@@ -40,14 +40,14 @@ export function InsightsPanel() {
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-3">
                 {insights.map((insight) => {
-                    let colorClass = "bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400";
+                    let colorClass = "bg-primary/10 border-primary/20 text-primary";
                     let Icon = Info;
 
                     if (insight.type === "warning") {
-                        colorClass = "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400";
+                        colorClass = "bg-destructive/10 border-destructive/20 text-destructive";
                         Icon = AlertCircle;
                     } else if (insight.type === "success") {
-                        colorClass = "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400";
+                        colorClass = "bg-muted/50 border-border text-foreground";
                         Icon = TrendingDown;
                     }
 

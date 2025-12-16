@@ -4,7 +4,7 @@ import { SpendingTrendChart } from "@/components/features/dashboard/home/spendin
 import { SpendingByCategoryChart } from "@/components/features/analytics/spending-by-category-chart";
 import { RecentTransactions } from "@/components/features/dashboard/home/recent-transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useDashboardSummary } from "@/hooks/use-api";
+import { useDashboardSummary } from "@/hooks/use-analytics";
 
 export function AnalyticsContent() {
     const { data: summary } = useDashboardSummary();

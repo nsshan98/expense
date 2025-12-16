@@ -3,7 +3,7 @@
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useCreateCategory } from "@/hooks/use-api";
+import { useCreateCategory } from "@/hooks/use-categories";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -40,11 +40,11 @@ export function AddCategoryForm() {
                             placeholder="e.g., Utilities"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="bg-gray-50"
+                            className="bg-muted/50"
                         />
                     </div>
                     <Button
-                        className="w-full bg-emerald-400 hover:bg-emerald-500 text-white font-medium"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                         onClick={handleCreate}
                         disabled={createCategory.isPending}
                     >

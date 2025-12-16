@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useTransactions } from "@/hooks/use-api";
+import { useTransactions } from "@/hooks/use-transactions";
 import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Skeleton } from "@/components/atoms/skeleton";
@@ -46,7 +46,7 @@ export function RecentTransactions() {
                                 <div className="font-medium">{transaction.name}</div>
                                 <div className="text-sm text-muted-foreground">{transaction.category}</div>
                                 <div className="flex items-center justify-between">
-                                    <span className={transaction.type === 'expense' ? "text-red-500" : "text-green-500"}>
+                                    <span className={transaction.type === 'expense' ? "text-destructive" : "text-primary"}>
                                         {transaction.type === 'expense' ? '-' : '+'}${transaction.amount.toFixed(2)}
                                     </span>
                                     <Button variant="ghost" size="icon" className="h-8 w-8">

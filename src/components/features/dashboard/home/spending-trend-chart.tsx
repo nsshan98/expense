@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useAnalytics } from "@/hooks/use-api";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Skeleton } from "@/components/atoms/skeleton";
 
@@ -35,8 +35,8 @@ export function SpendingTrendChart() {
                     <p className="text-sm text-muted-foreground">Comparison of actual vs. forecasted spending.</p>
                 </div>
                 <div className="flex gap-2">
-                    <div className="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-md font-medium">Food trending +12%</div>
-                    <div className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-md font-medium">Shopping +8%</div>
+                    <div className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md font-medium">Food trending +12%</div>
+                    <div className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium">Shopping +8%</div>
                 </div>
             </CardHeader>
             <CardContent>
@@ -45,12 +45,12 @@ export function SpendingTrendChart() {
                         <AreaChart data={data}>
                             <defs>
                                 <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.1} />
+                                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="colorPredicted" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
-                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="var(--secondary)" stopOpacity={0.1} />
+                                    <stop offset="95%" stopColor="var(--secondary)" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <XAxis
@@ -72,7 +72,7 @@ export function SpendingTrendChart() {
                             <Area
                                 type="monotone"
                                 dataKey="predicted"
-                                stroke="#6366f1"
+                                stroke="var(--secondary)"
                                 strokeDasharray="5 5"
                                 fillOpacity={1}
                                 fill="url(#colorPredicted)"
@@ -80,7 +80,7 @@ export function SpendingTrendChart() {
                             <Area
                                 type="monotone"
                                 dataKey="amount"
-                                stroke="#10b981"
+                                stroke="var(--primary)"
                                 fillOpacity={1}
                                 fill="url(#colorAmount)"
                             />

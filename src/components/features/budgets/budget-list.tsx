@@ -70,7 +70,7 @@ export function BudgetList({
                                         <Input
                                             value={localBudgets[budget.id] || ''}
                                             onChange={(e) => onAmountChange(budget.id, e.target.value)}
-                                            className="pl-6 bg-gray-50"
+                                            className="pl-6 bg-muted/50"
                                             type="number"
                                         />
                                     </div>
@@ -80,14 +80,14 @@ export function BudgetList({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
                                             onClick={() => onSave(budget.id)}
                                             disabled={isUpdating}
                                         >
                                             <Save className="h-4 w-4" />
                                         </Button>
                                     ) : (
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 cursor-default">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted cursor-default">
                                             <CheckCircle2 className="h-4 w-4" />
                                         </Button>
                                     )}

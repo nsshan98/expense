@@ -42,8 +42,8 @@ export async function signIn(
 
       await createSession({
         user: {
-          id: String(result.userId),
-          name: result.name || "User",
+          id: String(result.user?.id),
+          name: result.user?.name || "User",
         },
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,

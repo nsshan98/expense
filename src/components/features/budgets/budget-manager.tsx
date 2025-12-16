@@ -1,7 +1,7 @@
 "use client";
 
 import { BudgetList } from "@/components/features/budgets/budget-list";
-import { useBudgets, useUpdateBudget } from "@/hooks/use-api";
+import { useBudgets, useUpdateBudget } from "@/hooks/use-budgets";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 

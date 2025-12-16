@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
 import { Button } from "@/components/atoms/button";
-import { useBudgets } from "@/hooks/use-api";
+import { useBudgets } from "@/hooks/use-budgets";
 import { useRouter } from "next/navigation";
 import { Wallet, TrendingUp, PieChart, Bell } from "lucide-react";
 
@@ -16,7 +16,7 @@ export function WelcomeBanner() {
     }
 
     return (
-        <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50">
+        <Card className="border-2 border-border bg-muted/30">
             <CardHeader>
                 <CardTitle className="text-2xl">Welcome to Expense Tracker! 🎉</CardTitle>
             </CardHeader>
@@ -26,27 +26,27 @@ export function WelcomeBanner() {
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4">
-                    <div className="flex flex-col items-center text-center p-3 bg-white rounded-lg">
-                        <Wallet className="h-8 w-8 text-emerald-500 mb-2" />
+                    <div className="flex flex-col items-center text-center p-3 bg-card rounded-lg border border-border">
+                        <Wallet className="h-8 w-8 text-primary mb-2" />
                         <span className="text-xs font-medium">Track Budgets</span>
                     </div>
-                    <div className="flex flex-col items-center text-center p-3 bg-white rounded-lg">
-                        <TrendingUp className="h-8 w-8 text-blue-500 mb-2" />
+                    <div className="flex flex-col items-center text-center p-3 bg-card rounded-lg border border-border">
+                        <TrendingUp className="h-8 w-8 text-primary mb-2" />
                         <span className="text-xs font-medium">View Trends</span>
                     </div>
-                    <div className="flex flex-col items-center text-center p-3 bg-white rounded-lg">
-                        <PieChart className="h-8 w-8 text-purple-500 mb-2" />
+                    <div className="flex flex-col items-center text-center p-3 bg-card rounded-lg border border-border">
+                        <PieChart className="h-8 w-8 text-primary mb-2" />
                         <span className="text-xs font-medium">Analyze Spending</span>
                     </div>
-                    <div className="flex flex-col items-center text-center p-3 bg-white rounded-lg">
-                        <Bell className="h-8 w-8 text-amber-500 mb-2" />
+                    <div className="flex flex-col items-center text-center p-3 bg-card rounded-lg border border-border">
+                        <Bell className="h-8 w-8 text-primary mb-2" />
                         <span className="text-xs font-medium">Get Alerts</span>
                     </div>
                 </div>
 
                 <Button
                     onClick={() => router.push('/setup')}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     size="lg"
                 >
                     Set Up Your Budgets

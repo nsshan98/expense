@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useBudgets } from "@/hooks/use-api";
+import { useBudgets } from "@/hooks/use-budgets";
 import { Progress } from "@/components/atoms/progress";
 import { Skeleton } from "@/components/atoms/skeleton";
 

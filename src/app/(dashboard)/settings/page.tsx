@@ -15,7 +15,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <User className="h-5 w-5 text-blue-500" />
+                            <User className="h-5 w-5 text-primary" />
                             <CardTitle>Profile Settings</CardTitle>
                         </div>
                         <CardDescription>
@@ -32,7 +32,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <Bell className="h-5 w-5 text-emerald-500" />
+                            <Bell className="h-5 w-5 text-primary" />
                             <CardTitle>Notifications</CardTitle>
                         </div>
                         <CardDescription>
@@ -49,7 +49,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <Shield className="h-5 w-5 text-amber-500" />
+                            <Shield className="h-5 w-5 text-primary" />
                             <CardTitle>Security</CardTitle>
                         </div>
                         <CardDescription>
@@ -66,7 +66,7 @@ export default function SettingsPage() {
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <Palette className="h-5 w-5 text-purple-500" />
+                            <Palette className="h-5 w-5 text-primary" />
                             <CardTitle>Appearance</CardTitle>
                         </div>
                         <CardDescription>

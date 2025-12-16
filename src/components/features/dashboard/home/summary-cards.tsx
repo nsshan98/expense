@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useDashboardSummary } from "@/hooks/use-api";
+import { useDashboardSummary } from "@/hooks/use-analytics";
 import { ArrowUpRight, DollarSign, Wallet, CreditCard } from "lucide-react";
 import { Skeleton } from "@/components/atoms/skeleton";
 
@@ -49,7 +49,7 @@ export function SummaryCards() {
                 <CardContent>
                     <div className="text-2xl font-bold">${summary?.thisMonthSpend.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground flex items-center">
-                        <span className="text-green-500 flex items-center mr-1">
+                        <span className="text-primary flex items-center mr-1">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
                             {summary?.thisMonthTrend}%
                         </span>

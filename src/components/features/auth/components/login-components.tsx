@@ -61,34 +61,34 @@ export default function LoginComponent() {
     };
 
     return (
-        <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center relative overflow-hidden font-sans">
+        <div className="min-h-screen w-full bg-background flex items-center justify-center relative overflow-hidden font-sans">
             {/* Background Graphics - Expense Tracker Theme */}
             <div className="absolute inset-0 pointer-events-none">
                 {/* Top Right Circle */}
-                <div className="absolute -top-20 -right-20 w-96 h-96 bg-blue-100 rounded-full opacity-50 blur-3xl"></div>
+                <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary/10 rounded-full opacity-50 blur-3xl"></div>
                 {/* Bottom Left Circle */}
-                <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-indigo-100 rounded-full opacity-50 blur-3xl"></div>
+                <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-secondary/10 rounded-full opacity-50 blur-3xl"></div>
 
                 {/* Floating Icons */}
-                <div className="absolute top-1/4 left-10 text-blue-200 animate-bounce delay-1000 duration-3000">
+                <div className="absolute top-1/4 left-10 text-primary/20 animate-bounce delay-1000 duration-3000">
                     <Wallet size={64} />
                 </div>
-                <div className="absolute bottom-1/4 right-10 text-indigo-200 animate-bounce delay-700 duration-3000">
+                <div className="absolute bottom-1/4 right-10 text-secondary/20 animate-bounce delay-700 duration-3000">
                     <PieChart size={64} />
                 </div>
-                <div className="absolute top-20 right-1/3 text-green-100 animate-pulse">
+                <div className="absolute top-20 right-1/3 text-primary/20 animate-pulse">
                     <TrendingUp size={80} />
                 </div>
-                <div className="absolute bottom-20 left-1/3 text-yellow-100 rotate-12">
+                <div className="absolute bottom-20 left-1/3 text-secondary/20 rotate-12">
                     <DollarSign size={80} />
                 </div>
             </div>
 
             {/* Main Card */}
-            <div className="relative z-10 w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
+            <div className="relative z-10 w-full max-w-md p-8 bg-card rounded-2xl shadow-xl border border-border">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome Back</h1>
-                    <p className="text-gray-500 mt-2 text-sm">Login to your Expense Tracker Account</p>
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Welcome Back</h1>
+                    <p className="text-muted-foreground mt-2 text-sm">Login to your Expense Tracker Account</p>
                 </div>
 
                 <Form {...loginForm}>
@@ -98,7 +98,7 @@ export default function LoginComponent() {
                     >
                         <div className="flex flex-col gap-6">
                             {globalError && (
-                                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+                                <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md">
                                     {globalError}
                                 </div>
                             )}
@@ -157,7 +157,7 @@ export default function LoginComponent() {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md mt-6"
+                            className="w-full h-11 font-semibold rounded-md mt-6"
                         >
                             {isSubmitting ? (
                                 <>
@@ -170,11 +170,11 @@ export default function LoginComponent() {
                         </Button>
 
                         {/* Login Link */}
-                        <p className="text-center text-sm text-gray-600 mt-4">
+                        <p className="text-center text-sm text-muted-foreground mt-4">
                             Don’t have account?{" "}
                             <Link
                                 href="/auth/sign-up"
-                                className="text-blue-600 hover:underline font-medium"
+                                className="text-primary hover:underline font-medium"
                             >
                                 Sign up
                             </Link>

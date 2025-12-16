@@ -16,15 +16,15 @@ export default function BudgetsPage() {
                 <div className="space-y-6">
                     <AddCategoryForm />
 
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex gap-3">
+                    <div className="bg-muted/50 border border-border rounded-xl p-4 flex gap-3">
                         <div className="mt-1">
-                            <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <Lightbulb className="h-4 w-4 text-emerald-600" />
+                            <div className="h-8 w-8 rounded-full bg-background flex items-center justify-center border border-border">
+                                <Lightbulb className="h-4 w-4 text-foreground" />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <h4 className="text-sm font-semibold text-emerald-900">Budgets help generate predictions & warnings.</h4>
-                            <p className="text-xs text-emerald-700 leading-relaxed">
+                            <h4 className="text-sm font-semibold text-foreground">Budgets help generate predictions & warnings.</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
                                 Set monthly limits to track your spending goals and stay on top of your finances.
                             </p>
                         </div>

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Checkbox } from "@/components/atoms/checkbox";
-import { useMergeTransactions } from "@/hooks/use-api";
+import { useMergeTransactions } from "@/hooks/use-transactions";
 import { MergeSuggestion } from "@/types/dashboard";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -51,7 +51,7 @@ export function MergeModal({ isOpen, onClose, suggestion }: MergeModalProps) {
                     <div className="space-y-2">
                         {suggestion.similarTransactions.map((t, idx) => (
                             <div key={idx} className="flex items-center space-x-2">
-                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                <CheckCircle2 className="h-4 w-4 text-primary" />
                                 <span className="text-sm">{t.name}</span>
                             </div>
                         ))}
@@ -61,32 +61,32 @@ export function MergeModal({ isOpen, onClose, suggestion }: MergeModalProps) {
                         <h4 className="font-medium text-sm">Choose final name</h4>
 
                         <div
-                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer ${selectedName === suggestion.suggestedName ? 'bg-emerald-50 border-emerald-200' : 'hover:bg-gray-50'}`}
+                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer ${selectedName === suggestion.suggestedName ? 'bg-muted border-primary' : 'hover:bg-muted/50'}`}
                             onClick={() => setSelectedName(suggestion.suggestedName)}
                         >
-                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === suggestion.suggestedName ? 'border-emerald-500' : 'border-gray-300'}`}>
-                                {selectedName === suggestion.suggestedName && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
+                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === suggestion.suggestedName ? 'border-primary' : 'border-border'}`}>
+                                {selectedName === suggestion.suggestedName && <div className="h-2 w-2 rounded-full bg-primary" />}
                             </div>
                             <span className="text-sm">{suggestion.suggestedName}</span>
                         </div>
 
                         <div
-                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer ${selectedName === suggestion.originalName ? 'bg-emerald-50 border-emerald-200' : 'hover:bg-gray-50'}`}
+                            className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer ${selectedName === suggestion.originalName ? 'bg-muted border-primary' : 'hover:bg-muted/50'}`}
                             onClick={() => setSelectedName(suggestion.originalName)}
                         >
-                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === suggestion.originalName ? 'border-emerald-500' : 'border-gray-300'}`}>
-                                {selectedName === suggestion.originalName && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
+                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === suggestion.originalName ? 'border-primary' : 'border-border'}`}>
+                                {selectedName === suggestion.originalName && <div className="h-2 w-2 rounded-full bg-primary" />}
                             </div>
                             <span className="text-sm">{suggestion.originalName}</span>
                         </div>
 
                         <div
-                            className={`p-3 rounded-lg border cursor-pointer ${selectedName === 'custom' ? 'bg-emerald-50 border-emerald-200' : 'hover:bg-gray-50'}`}
+                            className={`p-3 rounded-lg border cursor-pointer ${selectedName === 'custom' ? 'bg-muted border-primary' : 'hover:bg-muted/50'}`}
                             onClick={() => setSelectedName('custom')}
                         >
                             <div className="flex items-center space-x-2 mb-2">
-                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === 'custom' ? 'border-emerald-500' : 'border-gray-300'}`}>
-                                    {selectedName === 'custom' && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
+                                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${selectedName === 'custom' ? 'border-primary' : 'border-border'}`}>
+                                    {selectedName === 'custom' && <div className="h-2 w-2 rounded-full bg-primary" />}
                                 </div>
                                 <span className="text-sm">Custom name</span>
                             </div>
@@ -105,7 +105,7 @@ export function MergeModal({ isOpen, onClose, suggestion }: MergeModalProps) {
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
                     <Button
-                        className="bg-emerald-400 hover:bg-emerald-500 text-white"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
                         onClick={handleMerge}
                         disabled={mergeTransactions.isPending}
                     >

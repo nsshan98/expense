@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/atoms/button";
-import { useMergeSuggestions } from "@/hooks/use-api";
+import { useMergeSuggestions } from "@/hooks/use-transactions";
 import { useState } from "react";
 import { MergeModal } from "./merge-modal";
 import { Sparkles } from "lucide-react";
@@ -16,9 +16,9 @@ export function MergeSuggestionBanner() {
 
     return (
         <>
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-indigo-900">
-                    <Sparkles className="h-4 w-4 text-indigo-500" />
+            <div className="bg-muted/50 border border-border rounded-lg p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-foreground">
+                    <Sparkles className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">
                         Similar: <span className="font-bold">{suggestion.originalName}, {suggestion.suggestedName}</span>
                     </span>
@@ -26,7 +26,7 @@ export function MergeSuggestionBanner() {
                 <Button
                     size="sm"
                     variant="secondary"
-                    className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 h-8"
+                    className="h-8"
                     onClick={() => setSelectedSuggestion(suggestion.id)}
                 >
                     Merge?
