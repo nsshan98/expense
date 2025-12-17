@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createBudgetSchema = z.object({
-    category: z.string().min(1, "Category is required"),
+    categoryId: z.string().min(1, "Category ID is required"),
     amount: z.number().min(0.01, "Amount must be greater than 0"),
 });
 
@@ -12,3 +12,27 @@ export const updateBudgetSchema = z.object({
 
 export type CreateBudgetSchemaType = z.infer<typeof createBudgetSchema>;
 export type UpdateBudgetSchemaType = z.infer<typeof updateBudgetSchema>;
+
+export const editBudgetSchema = z.object({
+    categoryName: z.string().min(1, "Category name is required"),
+    amount: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+        message: "Amount must be a positive number",
+    }),
+});
+
+export type EditBudgetFormValues = z.infer<typeof editBudgetSchema>;
+
+export const budgetItemSchema = z.object({
+    id: z.string(),
+    category: z.string().min(1, "Category name is required"),
+    amount: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+        message: "Amount must be a positive number",
+    }),
+    isCustom: z.boolean().optional(),
+});
+
+export const budgetSetupSchema = z.object({
+    budgets: z.array(budgetItemSchema),
+});
+
+export type BudgetSetupFormValues = z.infer<typeof budgetSetupSchema>;

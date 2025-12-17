@@ -12,6 +12,7 @@ export interface Transaction {
 export interface Budget {
     id: string;
     category: string;
+    categoryId?: string;
     amount: number;
     spent: number;
     remaining: number;

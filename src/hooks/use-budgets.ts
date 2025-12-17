@@ -7,7 +7,7 @@ export const useBudgets = () => {
     return useQuery({
         queryKey: ['budgets'],
         queryFn: async () => {
-            const { data } = await axiosClient.get<Budget[]>('/budgets');
+            const { data } = await axiosClient.get<Budget[]>('/budgets/all');
             return data;
         },
     });
@@ -16,12 +16,12 @@ export const useBudgets = () => {
 export const useCreateBudget = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: { category: string; amount: number }) => {
+        mutationFn: async (payload: { categoryId: string; amount: number }) => {
             const validation = createBudgetSchema.safeParse(payload);
             if (!validation.success) {
                 throw new Error(validation.error.issues[0].message);
             }
-            const { data } = await axiosClient.post('/budgets', payload);
+            const { data } = await axiosClient.post('/budgets/create', payload);
             return data;
         },
         onSuccess: () => {
@@ -40,6 +40,20 @@ export const useUpdateBudget = () => {
                 throw new Error(validation.error.issues[0].message);
             }
             const { data } = await axiosClient.patch(`/budgets/${payload.id}`, { amount: payload.amount });
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+        },
+    });
+};
+
+export const useDeleteBudget = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await axiosClient.delete(`/budgets/${id}`);
             return data;
         },
         onSuccess: () => {

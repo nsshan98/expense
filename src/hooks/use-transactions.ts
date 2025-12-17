@@ -31,6 +31,7 @@ export const useCreateTransaction = () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
             queryClient.invalidateQueries({ queryKey: ['insights'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
         },
     });
 };
@@ -54,6 +55,7 @@ export const useUpdateTransaction = () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
             queryClient.invalidateQueries({ queryKey: ['insights'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
         },
     });
 };
@@ -69,6 +71,7 @@ export const useDeleteTransaction = () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
             queryClient.invalidateQueries({ queryKey: ['insights'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
         },
     });
 };
@@ -97,6 +100,8 @@ export const useMergeTransactions = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['transactions'] });
             queryClient.invalidateQueries({ queryKey: ['merge-suggestions'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
+            queryClient.invalidateQueries({ queryKey: ['budgets'] });
         },
     });
 };
