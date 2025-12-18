@@ -72,33 +72,13 @@ export function BudgetSetupForm() {
         }
 
         try {
-            // Create categories first, then budgets
+            // Create budgets directly (this will auto-create categories)
             for (const budget of validBudgets) {
-                // Create category
-                const categoryResponse = await createCategory.mutateAsync({
-                    name: budget.category,
-                    type: "EXPENSE",
+                await createBudget.mutateAsync({
+                    categoryName: budget.category,
+                    categoryType: "EXPENSE", // Defaulting to EXPENSE for budget setup
+                    amount: parseFloat(budget.amount),
                 });
-
-                // The response from createCategory should contain the ID
-                // Assuming categoryResponse is the category object with an id
-                // If the API returns { data: Category } or just Category, we need to handle it.
-                // Based on use-categories.ts: return data; which is likely the category object or { data: ... }
-                // Let's assume it returns the category object directly or we need to check the structure.
-                // Looking at use-categories.ts: const { data } = await axiosClient.post(...) -> return data;
-                // If the backend follows standard REST, it returns the created resource.
-
-                const categoryId = categoryResponse.id || (categoryResponse as any).data?.id;
-
-                if (categoryId) {
-                    // Create budget with amount and categoryId
-                    await createBudget.mutateAsync({
-                        categoryId: categoryId,
-                        amount: parseFloat(budget.amount),
-                    });
-                } else {
-                    console.error("Failed to get category ID for", budget.category);
-                }
             }
 
             toast.success("Budgets created successfully!");

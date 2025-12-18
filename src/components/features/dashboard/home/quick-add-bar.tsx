@@ -5,7 +5,7 @@ import { useCreateTransaction } from "@/hooks/use-transactions";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { transactionSchema, TransactionSchemaType } from "@/zod/transaction-schema";
+import { quickAddSchema, QuickAddFormValues } from "@/zod/transaction-schema";
 import {
     Form,
     FormControl,
@@ -20,35 +20,38 @@ import { FaClipboardList, FaBangladeshiTakaSign } from "react-icons/fa6";
 export function QuickAddBar() {
     const createTransaction = useCreateTransaction();
 
-    const form = useForm<TransactionSchemaType>({
-        resolver: zodResolver(transactionSchema),
+    const form = useForm<QuickAddFormValues>({
+        resolver: zodResolver(quickAddSchema),
         defaultValues: {
             name: "",
-            amount: 0, // Initialize as number
+            amount: "",
             date: new Date().toISOString(),
-            // type: 'expense',
         },
     });
 
     const { isSubmitting } = form.formState;
 
-    const onSubmit = async (data: TransactionSchemaType) => {
+    const onSubmit = async (data: QuickAddFormValues) => {
         try {
             await createTransaction.mutateAsync({
-                ...data,
-                date: new Date().toISOString(), // Ensure current date/time
-                // type: 'expense', // Force expense for quick add
+                name: data.name,
+                amount: parseFloat(data.amount),
+                date: new Date().toISOString(),
+                // Type is optional in the create payload, often defaults to expense on backend or we can pass it if needed.
+                // quickAddSchema doesn't have type field, implying default behavior.
+                // But useCreateTransaction expects TransactionSchemaType which has type as optional enum.
+                // We'll let backend handle default or pass 'expense' explicitly if logic demands.
+                // Previous code: type: 'expense' (commented out)
+                // type: 'expense'
             });
             toast.success("Expense added successfully");
             form.reset({
                 name: "",
-                amount: 0,
+                amount: "",
                 date: new Date().toISOString(),
-                // type: 'expense',
             });
         } catch (error) {
             console.error(error);
-            // Error handling similar to SignupForm could be added here if needed
             toast.error("Failed to add expense");
         }
     };
@@ -92,8 +95,6 @@ export function QuickAddBar() {
                                             type="number"
                                             placeholder="Amount"
                                             {...field}
-                                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                            onFocus={(e) => e.currentTarget.select()}
                                         />
                                         <InputGroupAddon>
                                             <FaBangladeshiTakaSign className="h-4 w-4" />

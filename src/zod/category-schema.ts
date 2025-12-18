@@ -18,6 +18,7 @@ export const addCategoryFormSchema = z.object({
     name: z.string().min(1, "Category name is required"),
     type: z.enum(["EXPENSE", "INCOME"]),
     amount: z.string().optional(),
+    month: z.date().optional(),
 });
 
 export type AddCategoryFormValues = z.infer<typeof addCategoryFormSchema>;

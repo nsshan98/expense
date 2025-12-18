@@ -18,6 +18,8 @@ axiosClient.interceptors.request.use(async (request) => {
   const accessToken = await getAccessToken();
   if (accessToken) {
     request.headers.Authorization = `Bearer ${accessToken}`;
+  } else {
+    console.warn("Axios Interceptor: No access token found in session.");
   }
   return request;
 });

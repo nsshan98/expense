@@ -21,6 +21,12 @@ import {
 } from "@/components/atoms/form";
 import { addCategoryFormSchema, AddCategoryFormValues } from "@/zod/category-schema";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/atoms/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { MonthPicker } from "@/components/atoms/month-picker";
+
 export function AddCategoryForm() {
     const createCategory = useCreateCategory();
     const createBudget = useCreateBudget();
@@ -36,26 +42,21 @@ export function AddCategoryForm() {
 
     const onSubmit = async (data: AddCategoryFormValues) => {
         try {
-            // 1. Create Category
-            const categoryResponse = await createCategory.mutateAsync({
-                name: data.name,
-                type: data.type
-            });
-
-            const categoryId = categoryResponse.id || (categoryResponse as any).data?.id;
-
-            if (!categoryId) {
-                throw new Error("Failed to retrieve category ID");
-            }
-
-            // 2. Create Budget (if amount is provided)
             if (data.amount && parseFloat(data.amount) > 0) {
+                // 1. Create Budget with Category (Option B)
                 await createBudget.mutateAsync({
-                    categoryId: categoryId,
+                    categoryName: data.name,
+                    categoryType: data.type,
                     amount: parseFloat(data.amount),
+                    month: data.month ? format(data.month, "MM-yyyy") : undefined,
                 });
                 toast.success("Category and budget created successfully");
             } else {
+                // 2. Create Category only
+                await createCategory.mutateAsync({
+                    name: data.name,
+                    type: data.type,
+                });
                 toast.success("Category created successfully");
             }
 
@@ -63,6 +64,7 @@ export function AddCategoryForm() {
                 name: "",
                 type: "EXPENSE",
                 amount: "",
+                month: undefined,
             });
         } catch (error) {
             console.error(error);
@@ -126,7 +128,7 @@ export function AddCategoryForm() {
                                     <FormLabel>Monthly Budget (Optional)</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
                                             <Input
                                                 type="number"
                                                 placeholder="0.00"
@@ -135,6 +137,43 @@ export function AddCategoryForm() {
                                             />
                                         </div>
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="month"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Budget Month (Optional)</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal bg-muted/50",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "MMMM yyyy")
+                                                    ) : (
+                                                        <span>Pick a month</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <MonthPicker
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                 </FormItem>
                             )}

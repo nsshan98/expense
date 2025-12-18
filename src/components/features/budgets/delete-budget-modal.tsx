@@ -34,7 +34,7 @@ export function DeleteBudgetModal({ isOpen, onClose, budget }: DeleteBudgetModal
                 <DialogHeader>
                     <DialogTitle>Delete Budget</DialogTitle>
                     <DialogDescription>
-                        Are you sure you want to delete the budget for <span className="font-medium text-foreground">{budget?.category}</span>? This action cannot be undone.
+                        Are you sure you want to delete the budget for <span className="font-medium text-foreground">{budget?.category?.name}</span>? This action cannot be undone.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

@@ -31,6 +31,7 @@ export default async function AdminPanelLayout({
 }) {
   const session = await getSession();
   console.log(session);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body

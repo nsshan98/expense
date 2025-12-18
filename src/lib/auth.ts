@@ -40,13 +40,16 @@ export async function signIn(
       const result = await response.json();
       // TODO: Create The Session For Authenticated User.
 
+      const accessToken = result.accessToken || result.access_token;
+      const refreshToken = result.refreshToken || result.refresh_token;
+
       await createSession({
         user: {
           id: String(result.user?.id),
           name: result.user?.name || "User",
         },
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
+        accessToken,
+        refreshToken,
       });
       shouldRedirect = true;
     } else {
@@ -88,7 +91,10 @@ export const refreshToken = async (oldRefreshToken: string) => {
       throw new Error("Failed to refresh token" + response.statusText);
     }
 
-    const { accessToken, refreshToken } = await response.json();
+    const result = await response.json();
+    const accessToken = result.accessToken || result.access_token;
+    const refreshToken = result.refreshToken || result.refresh_token;
+
     // update session with new tokens
     const updateRes = await fetch("http://localhost:3000/api/auth/update", {
       method: "POST",

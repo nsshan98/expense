@@ -41,7 +41,7 @@ export function CategoryBudgetList() {
                     {budgets?.map((budget) => (
                         <div key={budget.id} className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span className="font-medium">{budget.category}</span>
+                                <span className="font-medium">{budget.category.name}</span>
                                 <span className="text-muted-foreground">${budget.spent} / ${budget.amount}</span>
                             </div>
                             <Progress value={budget.percentage} className="h-2" />

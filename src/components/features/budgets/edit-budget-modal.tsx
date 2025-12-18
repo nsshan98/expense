@@ -10,7 +10,6 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
     Form,
     FormControl,
@@ -20,6 +19,12 @@ import {
     FormMessage,
 } from "@/components/atoms/form";
 import { editBudgetSchema, EditBudgetFormValues } from "@/zod/budget-schema";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/atoms/popover";
+import { cn } from "@/lib/utils";
+import { format, parse } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { MonthPicker } from "@/components/atoms/month-picker";
 
 interface EditBudgetModalProps {
     isOpen: boolean;
@@ -35,15 +40,26 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
         resolver: zodResolver(editBudgetSchema),
         defaultValues: {
             categoryName: "",
+            categoryType: "EXPENSE",
             amount: "",
+            month: undefined,
         },
     });
 
     useEffect(() => {
         if (budget) {
+            // Attempt to parse existing month from budget if it exists, otherwise default or skip
+            // Assuming budget has a Month field? The Budget interface doesn't explicitly show it in previous context,
+            // but the GET /all endpoint implies it might be relevant. Checking types/dashboard.ts would confirm.
+            // For now, if budget doesn't have a specific month field we can use, we might default to current or leave empty.
+            // However, the user request says 'while edit the budet add type and month also'. 
+            // So we need to be able to set it.
+
             form.reset({
-                categoryName: budget.category,
+                categoryName: budget.category.name,
+                categoryType: (budget.category.type as "EXPENSE" | "INCOME") || "EXPENSE",
                 amount: budget.amount.toString(),
+                month: budget.month,
             });
         }
     }, [budget, form]);
@@ -54,26 +70,27 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
         try {
             const amountValue = parseFloat(data.amount);
 
-            // 1. Update Budget Amount
-            if (amountValue !== budget.amount) {
+            // 1. Update Budget (Amount and Month)
+            // We update if amount changed OR month changed
+            // Since month is now part of the form, include it.
+            if (amountValue !== budget.amount || data.month !== budget.month) {
                 await updateBudget.mutateAsync({
                     id: budget.id,
                     amount: amountValue,
+                    month: data.month,
                 });
             }
 
-            // 2. Update Category Name (if changed and categoryId exists)
-            if (budget.categoryId && data.categoryName !== budget.category) {
-                await updateCategory.mutateAsync({
-                    id: budget.categoryId,
-                    name: data.categoryName,
-                    // We might need to pass the type if it's required by the API, 
-                    // but for now we assume we are just updating the name. 
-                    // If type is required, we should probably fetch the category details first or store it in budget.
-                    // Assuming type is optional in update or we default to EXPENSE if not provided (though that might be risky).
-                    // Let's check updateCategorySchema again. It has optional type.
-                });
-            } else if (data.categoryName !== budget.category) {
+            // 2. Update Category (Name and Type)
+            if (budget.categoryId) {
+                if (data.categoryName !== budget.category.name || data.categoryType !== budget.category.type) {
+                    await updateCategory.mutateAsync({
+                        id: budget.categoryId,
+                        name: data.categoryName,
+                        type: data.categoryType
+                    });
+                }
+            } else if (data.categoryName !== budget.category.name) {
                 console.warn("Cannot update category name: categoryId is missing");
             }
 
@@ -100,12 +117,39 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
                                 <FormItem>
                                     <FormLabel>Category Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Category name" {...field} />
+                                        <Input placeholder="Category name" className="capitalize" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
+                        <FormField
+                            control={form.control}
+                            name="categoryType"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Type</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        value={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="EXPENSE">Expense</SelectItem>
+                                            <SelectItem value="INCOME">Income</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <FormField
                             control={form.control}
                             name="amount"
@@ -114,7 +158,7 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
                                     <FormLabel>Budget Amount</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
                                             <Input
                                                 type="number"
                                                 className="pl-6"
@@ -127,6 +171,59 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
                                 </FormItem>
                             )}
                         />
+
+                        <FormField
+                            control={form.control}
+                            name="month"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Budget Month</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-full pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        // Assuming field.value is a string "MM-yyyy" or similar from schema
+                                                        // But schema defines month as string. MonthPicker returns a Date.
+                                                        // We should probably convert Date <-> String.
+                                                        // Let's assume schema expects string "MM-YYYY" based on other parts.
+                                                        // But MonthPicker expects Date.
+                                                        // We need to parse string to Date for Picker, and format Date to string for Form.
+                                                        // wait, useCreateBudget uses string "MM-yyyy" for month.
+                                                        // budget-schema says month is string.Optional.
+                                                        // The MonthPicker props are value: Date, onValueChange: (date: Date) => void.
+                                                        // We need a wrapper here.
+
+                                                        // Actually, let's keep it simple. If schema says string, store string.
+                                                        // Convert on render.
+
+                                                        // Parsing "MM-yyyy" to Date:
+                                                        field.value
+                                                    ) : (
+                                                        <span>Pick a month</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <MonthPicker
+                                                value={field.value ? parse(field.value, "MM-yyyy", new Date()) : undefined}
+                                                onValueChange={(d) => field.onChange(format(d, "MM-yyyy"))}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
                             <Button

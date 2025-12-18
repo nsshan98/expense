@@ -5,8 +5,19 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { useUpdateTransaction } from "@/hooks/use-transactions";
 import { Transaction } from "@/types/dashboard";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { editTransactionSchema, EditTransactionFormValues } from "@/zod/transaction-schema";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/atoms/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
 import { useCategories } from "@/hooks/use-categories";
 
@@ -17,41 +28,48 @@ interface EditTransactionModalProps {
 }
 
 export function EditTransactionModal({ isOpen, onClose, transaction }: EditTransactionModalProps) {
-    const [name, setName] = useState("");
-    const [amount, setAmount] = useState("");
-    const [categoryId, setCategoryId] = useState("");
-    const [date, setDate] = useState("");
-    const [type, setType] = useState<"income" | "expense">("expense");
     const updateTransaction = useUpdateTransaction();
     const { data: categories } = useCategories();
 
+    const form = useForm<EditTransactionFormValues>({
+        resolver: zodResolver(editTransactionSchema),
+        defaultValues: {
+            name: "",
+            amount: "",
+            categoryId: "",
+            date: "",
+            // type: "expense",
+        },
+    });
+
     useEffect(() => {
         if (transaction) {
-            setName(transaction.name);
-            setAmount(transaction.amount.toString());
-            // Try to find category ID by name if not present (fallback)
-            const catId = transaction.categoryId || categories?.find(c => c.name === transaction.category)?.id || "";
-            setCategoryId(catId);
-            setDate(transaction.date ? transaction.date.split('T')[0] : "");
-            setType(transaction.type);
-        }
-    }, [transaction, categories]);
+            const catId = transaction.categoryId ||
+                categories?.find(c => c.name === transaction.category)?.id ||
+                categories?.find(c => c.name.toLowerCase() === transaction.category?.toLowerCase())?.id ||
+                "";
 
-    const handleUpdate = async () => {
-        if (!transaction) return;
-        if (!name || !amount) {
-            toast.error("Please enter name and amount");
-            return;
+            form.reset({
+                name: transaction.name,
+                amount: transaction.amount.toString(),
+                categoryId: catId,
+                date: transaction.date ? transaction.date.split('T')[0] : "",
+                // type: transaction.type,
+            });
         }
+    }, [transaction, categories, form]);
+
+    const onSubmit = async (data: EditTransactionFormValues) => {
+        if (!transaction) return;
 
         try {
             await updateTransaction.mutateAsync({
                 id: transaction.id,
-                name,
-                amount: parseFloat(amount),
-                categoryId: categoryId || undefined,
-                date: new Date(date).toISOString(),
-                type,
+                name: data.name,
+                amount: parseFloat(data.amount),
+                categoryId: data.categoryId,
+                date: new Date(data.date).toISOString(),
+                // type: data.type,
             });
             toast.success("Transaction updated successfully");
             onClose();
@@ -67,70 +85,109 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                 <DialogHeader>
                     <DialogTitle>Edit Transaction</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Name</label>
-                        <Input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Transaction name"
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Transaction name" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Amount</label>
-                        <Input
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            placeholder="0.00"
+                        <FormField
+                            control={form.control}
+                            name="amount"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Amount</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            placeholder="0.00"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Category</label>
-                        <Select value={categoryId} onValueChange={setCategoryId}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {categories?.map((cat) => (
-                                    <SelectItem key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Date</label>
-                        <Input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
+                        <FormField
+                            control={form.control}
+                            name="categoryId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Category</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent className="capitalize">
+                                            {categories?.map((cat) => (
+                                                <SelectItem className="capitalize" key={cat.id} value={cat.id}>
+                                                    {cat.name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Type</label>
-                        <Select value={type} onValueChange={(val) => setType(val as "income" | "expense")}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="expense">Expense</SelectItem>
-                                <SelectItem value="income">Income</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>Cancel</Button>
-                    <Button
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                        onClick={handleUpdate}
-                        disabled={updateTransaction.isPending}
-                    >
-                        {updateTransaction.isPending ? "Updating..." : "Update"}
-                    </Button>
-                </DialogFooter>
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Date</FormLabel>
+                                    <FormControl>
+                                        <Input type="date" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {/* Hidden/Disabled Type field handled internally or via form but UI requested to be commented out or simple */}
+                        {/* <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <FormItem className="hidden">
+                                    <FormLabel>Type</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="expense">Expense</SelectItem>
+                                            <SelectItem value="income">Income</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        /> */}
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+                            <Button
+                                type="submit"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                disabled={updateTransaction.isPending}
+                            >
+                                {updateTransaction.isPending ? "Updating..." : "Update"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );

@@ -75,18 +75,18 @@ export function BudgetList({
                             <div key={budget.id} className="flex flex-col gap-3 p-4 border rounded-lg bg-card/50 hover:bg-card transition-colors">
                                 <div className="flex items-center justify-between">
                                     <div className="flex flex-col gap-1">
-                                        <span className="font-semibold text-lg">{budget.category}</span>
+                                        <span className="capitalize font-semibold text-lg">{budget.category.name}</span>
                                         <div className="text-sm text-muted-foreground flex gap-2">
                                             <span className={cn(isOverBudget ? "text-destructive font-medium" : "text-primary")}>
-                                                ${Number(budget?.spent || 0).toFixed(2)} spent
+                                                ৳{Number(budget?.spent || 0).toFixed(2)} spent
                                             </span>
                                             <span>/</span>
-                                            <span>${Number(budget?.amount || 0).toFixed(2)} limit</span>
+                                            <span>৳{Number(budget?.amount || 0).toFixed(2)} limit</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="relative w-32">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">৳</span>
                                             <Input
                                                 value={localBudgets[budget.id] || ''}
                                                 onChange={(e) => onAmountChange(budget.id, e.target.value)}
@@ -141,7 +141,7 @@ export function BudgetList({
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>{percentage.toFixed(0)}% used</span>
-                                        <span>${Number(budget.remaining || 0).toFixed(2)} remaining</span>
+                                        <span>৳{Number(budget.remaining || 0).toFixed(2)} remaining</span>
                                     </div>
                                     <Progress
                                         value={percentage}
@@ -151,7 +151,7 @@ export function BudgetList({
                                     {isOverBudget && (
                                         <div className="flex items-center gap-1 text-xs text-destructive mt-1">
                                             <AlertTriangle className="h-3 w-3" />
-                                            <span>Over budget by ${(Number(budget.spent || 0) - Number(budget.amount || 0)).toFixed(2)}</span>
+                                            <span>Over budget by ৳{(Number(budget.spent || 0) - Number(budget.amount || 0)).toFixed(2)}</span>
                                         </div>
                                     )}
                                 </div>

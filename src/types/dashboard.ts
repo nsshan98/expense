@@ -11,17 +11,19 @@ export interface Transaction {
 
 export interface Budget {
     id: string;
-    category: string;
+    category: Category;
     categoryId?: string;
     amount: number;
     spent: number;
     remaining: number;
     percentage: number;
+    month?: string;
 }
 
 export interface Category {
     id: string;
     name: string;
+    type?: "EXPENSE" | "INCOME";
     color?: string;
 }
 

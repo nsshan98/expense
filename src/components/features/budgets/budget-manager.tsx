@@ -8,8 +8,18 @@ import { DeleteBudgetModal } from "./delete-budget-modal";
 import { EditBudgetModal } from "./edit-budget-modal";
 import { toast } from "sonner";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/atoms/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon, X } from "lucide-react";
+import { MonthPicker } from "@/components/atoms/month-picker";
+import { Button } from "@/components/atoms/button";
+
 export function BudgetManager() {
-    const { data: budgets, isLoading } = useBudgets();
+    const [date, setDate] = useState<Date | undefined>(new Date());
+    const monthString = date ? format(date, "MM-yyyy") : undefined;
+
+    const { data: budgets, isLoading } = useBudgets(monthString);
     const updateBudget = useUpdateBudget();
     const [localBudgets, setLocalBudgets] = useState<Record<string, string>>({});
     const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
@@ -65,6 +75,39 @@ export function BudgetManager() {
 
     return (
         <>
+            <div className="flex justify-end mb-4 gap-2">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"secondary"}
+                            className={cn(
+                                "w-[240px] justify-start text-left font-normal",
+                                !date && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {date ? format(date, "MMMM yyyy") : <span>Pick a month</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="end">
+                        <MonthPicker
+                            value={date}
+                            onValueChange={(d) => setDate(d)}
+                        />
+                    </PopoverContent>
+                </Popover>
+                {date && (
+                    <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => setDate(undefined)}
+                        title="Show All"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                )}
+            </div>
+
             <BudgetList
                 budgets={budgets}
                 isLoading={isLoading}
