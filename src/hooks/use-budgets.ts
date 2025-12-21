@@ -7,6 +7,7 @@ export const useBudgets = (month?: string) => {
     return useQuery({
         queryKey: ['budgets', month],
         queryFn: async () => {
+            // Ensure month is passed as query param exactly as requested ?month=MM-YYYY
             const params = month ? { month } : {};
             const { data } = await axiosClient.get<Budget[]>('/budgets/all', { params });
             return data;
@@ -14,16 +15,27 @@ export const useBudgets = (month?: string) => {
     });
 };
 
+export const useBudget = (id: string) => {
+    return useQuery({
+        queryKey: ['budgets', id],
+        queryFn: async () => {
+            const { data } = await axiosClient.get<Budget>(`/budgets/${id}`);
+            return data;
+        },
+        enabled: !!id
+    });
+};
+
 export const useCreateBudget = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (payload: { categoryId: string; amount: number; month?: string } | { categoryName: string; categoryType: "EXPENSE" | "INCOME"; amount: number; month?: string }) => {
+            // Note: Zod schema union validation is a bit complex to handle generically here if we strictly want to validate before sending.
+            // But trusting the payload structure matches one of the options.
             const validation = createBudgetSchema.safeParse(payload);
             if (!validation.success) {
-                // If validation fails, we can try to extract a meaningful error
-                // Union validation errors can be verbose, so extracting the first issue might be tricky depending on which union path failed.
-                // We'll trust the first issue of the first error for now, or just the global error.
-                throw new Error(validation.error.issues[0].message);
+                // Try to get a meaningful error message
+                throw new Error("Invalid budget data");
             }
             const { data } = await axiosClient.post('/budgets/create', payload);
             return data;
@@ -39,14 +51,13 @@ export const useCreateBudget = () => {
 export const useUpdateBudget = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: { id: string; amount?: number; month?: string }) => {
+        mutationFn: async (payload: { id: string; amount?: number }) => {
             const validation = updateBudgetSchema.safeParse(payload);
             if (!validation.success) {
                 throw new Error(validation.error.issues[0].message);
             }
             const { data } = await axiosClient.patch(`/budgets/${payload.id}`, {
-                amount: payload.amount,
-                month: payload.month
+                amount: payload.amount
             });
             return data;
         },

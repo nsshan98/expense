@@ -70,14 +70,12 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
         try {
             const amountValue = parseFloat(data.amount);
 
-            // 1. Update Budget (Amount and Month)
-            // We update if amount changed OR month changed
-            // Since month is now part of the form, include it.
-            if (amountValue !== budget.amount || data.month !== budget.month) {
+            // 1. Update Budget (Amount Only)
+            // We update if amount changed
+            if (amountValue !== budget.amount) {
                 await updateBudget.mutateAsync({
                     id: budget.id,
                     amount: amountValue,
-                    month: data.month,
                 });
             }
 
@@ -177,48 +175,24 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
                             name="month"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
-                                    <FormLabel>Budget Month</FormLabel>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                    variant={"outline"}
-                                                    className={cn(
-                                                        "w-full pl-3 text-left font-normal",
-                                                        !field.value && "text-muted-foreground"
-                                                    )}
-                                                >
-                                                    {field.value ? (
-                                                        // Assuming field.value is a string "MM-yyyy" or similar from schema
-                                                        // But schema defines month as string. MonthPicker returns a Date.
-                                                        // We should probably convert Date <-> String.
-                                                        // Let's assume schema expects string "MM-YYYY" based on other parts.
-                                                        // But MonthPicker expects Date.
-                                                        // We need to parse string to Date for Picker, and format Date to string for Form.
-                                                        // wait, useCreateBudget uses string "MM-yyyy" for month.
-                                                        // budget-schema says month is string.Optional.
-                                                        // The MonthPicker props are value: Date, onValueChange: (date: Date) => void.
-                                                        // We need a wrapper here.
-
-                                                        // Actually, let's keep it simple. If schema says string, store string.
-                                                        // Convert on render.
-
-                                                        // Parsing "MM-yyyy" to Date:
-                                                        field.value
-                                                    ) : (
-                                                        <span>Pick a month</span>
-                                                    )}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <MonthPicker
-                                                value={field.value ? parse(field.value, "MM-yyyy", new Date()) : undefined}
-                                                onValueChange={(d) => field.onChange(format(d, "MM-yyyy"))}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <FormLabel>Budget Month (Cannot be changed)</FormLabel>
+                                    <FormControl>
+                                        <Button
+                                            variant={"outline"}
+                                            disabled
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                        >
+                                            {field.value ? (
+                                                field.value
+                                            ) : (
+                                                <span>Pick a month</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

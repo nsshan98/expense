@@ -42,12 +42,12 @@ export function CategoryBudgetList() {
                         <div key={budget.id} className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="font-medium">{budget.category.name}</span>
-                                <span className="text-muted-foreground">${budget.spent} / ${budget.amount}</span>
+                                <span className="text-muted-foreground">৳{budget.spent_this_month} / ৳{budget.amount}</span>
                             </div>
                             <Progress value={budget.percentage} className="h-2" />
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>{budget.percentage.toFixed(0)}% Spent</span>
-                                <span>${budget.remaining} Remaining</span>
+                                <span>৳{budget.remaining} {budget.remaining < 0 ? "Remainingfff" : "Over"}</span>
                             </div>
                         </div>
                     ))}

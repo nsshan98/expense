@@ -6,8 +6,10 @@ import { Button } from "@/components/atoms/button";
 import { Check, CircleCheck, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePlans } from "@/hooks/use-plans";
+import { Plan } from "@/types/subscription";
+import { SubscriptionRequestModal } from "./subscription-request-modal";
 
-const formatFeature = (key: string, value: any) => {
+const formatFeature = (key: string, value: string | number | boolean) => {
     const formattedKey = key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     // Handle boolean values
     if (typeof value === 'boolean') {
@@ -19,7 +21,14 @@ const formatFeature = (key: string, value: any) => {
 
 export function AvailablePlans() {
     const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
+    const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const { data: plans, isLoading, error } = usePlans();
+
+    const handleUpgrade = (plan: Plan) => {
+        setSelectedPlan(plan);
+        setIsModalOpen(true);
+    };
 
     if (isLoading) {
         return (
@@ -105,6 +114,7 @@ export function AvailablePlans() {
                                     plan.is_active && "bg-sky-400 hover:bg-sky-500 text-white"
                                 )}
                                 disabled={!plan.is_active && plan.price_monthly === null}
+                                onClick={() => !plan.is_active && plan.price_monthly !== null && handleUpgrade(plan)}
                             >
                                 {plan.is_active ? (
                                     <>
@@ -125,7 +135,6 @@ export function AvailablePlans() {
                                         </span>
                                     </li>
                                 ))}
-                                {/* Add static features if needed based on plan name for visual parity if API doesn't return them all */}
                                 {!plan.features['transactions'] && plan.name === 'Free' && (
                                     <li className="flex items-center gap-3 text-sm">
                                         <Check className="h-4 w-4 text-emerald-500" />
@@ -143,6 +152,13 @@ export function AvailablePlans() {
                     </Card>
                 ))}
             </div>
+
+            <SubscriptionRequestModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                plan={selectedPlan}
+                initialBillingCycle={billingCycle}
+            />
         </div>
     );
 }

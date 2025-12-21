@@ -19,6 +19,7 @@ import {
 import NavMain from "./nav-main";
 import NavUser from "./nav-user";
 import TeamInfo from "./team-info";
+import { SubscriptionBanner } from "./subscription-banner";
 
 // This is sample data.
 const data = {
@@ -77,6 +78,8 @@ export default function DashboardSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <div className="mt-auto" />
+        <SubscriptionBanner />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

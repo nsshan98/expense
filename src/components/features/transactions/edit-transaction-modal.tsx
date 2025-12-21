@@ -123,13 +123,17 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Category</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        value={field.value}
+                                    >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select category" />
+                                                <SelectValue placeholder={transaction?.category || "Select category"} />
                                             </SelectTrigger>
                                         </FormControl>
-                                        <SelectContent className="capitalize">
+                                        <SelectContent>
                                             {categories?.map((cat) => (
                                                 <SelectItem className="capitalize" key={cat.id} value={cat.id}>
                                                     {cat.name}

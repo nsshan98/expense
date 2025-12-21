@@ -154,14 +154,14 @@ export function AddCategoryForm() {
                                                 <Button
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-full pl-3 text-left font-normal bg-muted/50",
+                                                        "w-full pl-3 text-left font-normal text-amber-900 dark:text-amber-50",
                                                         !field.value && "text-muted-foreground"
                                                     )}
                                                 >
                                                     {field.value ? (
                                                         format(field.value, "MMMM yyyy")
                                                     ) : (
-                                                        <span>Pick a month</span>
+                                                        <span className="text-amber-900 dark:text-amber-50">Pick a month</span>
                                                     )}
                                                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                 </Button>
