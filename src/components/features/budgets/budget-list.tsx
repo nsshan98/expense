@@ -68,8 +68,8 @@ export function BudgetList({
             <CardContent>
                 <div className="space-y-6">
                     {budgets?.map((budget) => {
-                        const percentage = Math.min(budget.percentage || 0, 100);
-                        const isOverBudget = (budget.percentage || 0) > 100;
+                        const isOverBudget = (budget.over || 0) > 0;
+                        const percentage = isOverBudget ? 100 : Math.min(budget.percentage || 0, 100);
 
                         return (
                             <div key={budget.id} className="flex flex-col gap-3 p-4 border rounded-lg bg-card/50 hover:bg-card transition-colors">
@@ -77,7 +77,7 @@ export function BudgetList({
                                     <div className="flex flex-col gap-1">
                                         <span className="capitalize font-semibold text-lg">{budget.category.name}</span>
                                         <div className="text-sm text-muted-foreground flex gap-2">
-                                            <span className={cn(isOverBudget ? "text-destructive font-medium" : "text-primary")}>
+                                            <span className={cn(isOverBudget ? "text-destructive font-bold" : "text-primary")}>
                                                 ৳{Number(budget?.spent_this_month || 0).toFixed(2)} spent
                                             </span>
                                             <span>/</span>
@@ -140,8 +140,12 @@ export function BudgetList({
 
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs text-muted-foreground">
-                                        <span>{percentage.toFixed(0)}% used</span>
-                                        <span>৳{Number(budget.remaining || 0).toFixed(2)} remaining</span>
+                                        <span>{Number(budget.percentage || 0).toFixed(0)}% used</span>
+                                        {isOverBudget ? (
+                                            <span className="text-destructive font-medium">Over by ৳{Number(budget.over).toFixed(2)}</span>
+                                        ) : (
+                                            <span>৳{Number(budget.remaining || 0).toFixed(2)} remaining</span>
+                                        )}
                                     </div>
                                     <Progress
                                         value={percentage}
@@ -151,7 +155,7 @@ export function BudgetList({
                                     {isOverBudget && (
                                         <div className="flex items-center gap-1 text-xs text-destructive mt-1">
                                             <AlertTriangle className="h-3 w-3" />
-                                            <span>Over budget by ৳{(Number(budget.remaining || 0) - Number(budget.amount || 0)).toFixed(2)}</span>
+                                            <span>You have exceeded the budget by ৳{Number(budget.over || 0).toFixed(2)}</span>
                                         </div>
                                     )}
                                 </div>

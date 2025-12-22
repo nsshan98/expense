@@ -4,7 +4,7 @@ import { Lightbulb } from "lucide-react";
 
 export default function BudgetsPage() {
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight">Budget Settings</h1>
             </div>

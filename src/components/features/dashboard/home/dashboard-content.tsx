@@ -6,7 +6,6 @@ import { SpendingTrendChart } from "@/components/features/dashboard/home/spendin
 import { CategoryBudgetList } from "@/components/features/dashboard/home/category-budget-list";
 import { InsightsPanel } from "@/components/features/dashboard/home/insights-panel";
 import { RecentTransactions } from "@/components/features/dashboard/home/recent-transactions";
-import { MergeSuggestionBanner } from "@/components/features/dashboard/merge/merge-suggestion-banner";
 import { WelcomeBanner } from "@/components/features/dashboard/home/welcome-banner";
 
 export function DashboardContent() {
@@ -15,8 +14,6 @@ export function DashboardContent() {
             <WelcomeBanner />
 
             <QuickAddBar />
-
-            <MergeSuggestionBanner />
 
             <SummaryCards />
 

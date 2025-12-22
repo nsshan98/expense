@@ -3,11 +3,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/atoms/dialog";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
-import { useUpdateTransaction } from "@/hooks/use-transactions";
-import { Transaction } from "@/types/dashboard";
-import { useEffect } from "react";
+import { useUpdateTransaction, useMergeSuggestions, useMergeTransactions } from "@/hooks/use-transactions";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
+import { Transaction, MergeSuggestion } from "@/types/dashboard";
+import { MergeSuggestionBanner } from "./merge-suggestion-banner";
+import { MergeConfirmationModal } from "./merge-confirmation-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editTransactionSchema, EditTransactionFormValues } from "@/zod/transaction-schema";
 import {
@@ -31,6 +33,16 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
     const updateTransaction = useUpdateTransaction();
     const { data: categories } = useCategories();
 
+    // Merge Module Hooks
+    const [debouncedName, setDebouncedName] = useState("");
+    const { data: rawSuggestions } = useMergeSuggestions(debouncedName);
+    const mergeTransactions = useMergeTransactions();
+    const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
+
+    // Map suggestions to string array for UI
+    // specific logic: assuming API returns objects with originalName as the specific entity found
+    const suggestions = rawSuggestions || [];
+
     const form = useForm<EditTransactionFormValues>({
         resolver: zodResolver(editTransactionSchema),
         defaultValues: {
@@ -42,12 +54,36 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
         },
     });
 
+    const nameValue = form.watch("name");
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedName(nameValue);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [nameValue]);
+
     useEffect(() => {
         if (transaction) {
-            const catId = transaction.categoryId ||
-                categories?.find(c => c.name === transaction.category)?.id ||
-                categories?.find(c => c.name.toLowerCase() === transaction.category?.toLowerCase())?.id ||
-                "";
+            let catId = transaction.categoryId || "";
+
+            // Check if category is an object and use its ID if transaction.categoryId is missing
+            if (!catId && typeof transaction.category === 'object' && transaction.category !== null) {
+                catId = (transaction.category as any).id || "";
+            }
+
+            // Fallback to name matching if we still don't have an ID (or if category was a string name)
+            if (!catId && categories) {
+                const catName = (typeof transaction.category === 'object' && transaction.category !== null)
+                    ? (transaction.category as any).name
+                    : transaction.category;
+
+                if (catName) {
+                    catId = categories.find(c => c.name === catName)?.id ||
+                        categories.find(c => c.name.toLowerCase() === catName.toLowerCase())?.id ||
+                        "";
+                }
+            }
 
             form.reset({
                 name: transaction.name,
@@ -79,6 +115,20 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
         }
     };
 
+    const handleMerge = async (sourceNames: string[], targetName: string) => {
+        try {
+            await mergeTransactions.mutateAsync({
+                sourceNames,
+                targetName: targetName.toLowerCase() // API requirement
+            });
+            toast.success("Merged successfully");
+            setIsMergeModalOpen(false);
+            form.setValue("name", targetName); // Keep capitalized for UI
+        } catch (error: any) {
+            toast.error(error.message || "Failed to merge");
+        }
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">
@@ -94,7 +144,13 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Transaction name" {...field} />
+                                        <div className="flex flex-col">
+                                            <Input placeholder="Transaction name" {...field} />
+                                            <MergeSuggestionBanner
+                                                suggestions={suggestions}
+                                                onMergeClick={() => setIsMergeModalOpen(true)}
+                                            />
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -158,27 +214,6 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                                 </FormItem>
                             )}
                         />
-                        {/* Hidden/Disabled Type field handled internally or via form but UI requested to be commented out or simple */}
-                        {/* <FormField
-                            control={form.control}
-                            name="type"
-                            render={({ field }) => (
-                                <FormItem className="hidden">
-                                    <FormLabel>Type</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Type" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="expense">Expense</SelectItem>
-                                            <SelectItem value="income">Income</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        /> */}
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
@@ -192,6 +227,14 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                         </DialogFooter>
                     </form>
                 </Form>
+
+                <MergeConfirmationModal
+                    isOpen={isMergeModalOpen}
+                    onClose={() => setIsMergeModalOpen(false)}
+                    suggestions={suggestions}
+                    onMerge={handleMerge}
+                    isMerging={mergeTransactions.isPending}
+                />
             </DialogContent>
         </Dialog>
     );

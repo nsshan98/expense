@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/atoms/card";
 import { User, Bell, Shield, Palette } from "lucide-react";
 
+
 export default function SettingsPage() {
     return (
         <div className="flex flex-col gap-6 p-6">
@@ -10,6 +11,7 @@ export default function SettingsPage() {
                     Manage your account settings and preferences
                 </p>
             </div>
+
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>

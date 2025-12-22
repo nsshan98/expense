@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/atoms/button";
-import { useCreateTransaction } from "@/hooks/use-transactions";
+import { useCreateTransaction, useMergeSuggestions, useMergeTransactions } from "@/hooks/use-transactions";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,9 +16,22 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/atoms/input-group";
 import { Tag, DollarSign, Loader2, Plus } from "lucide-react";
 import { FaClipboardList, FaBangladeshiTakaSign } from "react-icons/fa6";
+import { useState, useEffect } from "react";
+import { MergeSuggestionBanner } from "@/components/features/transactions/merge-suggestion-banner";
+import { MergeConfirmationModal } from "@/components/features/transactions/merge-confirmation-modal";
+import { MergeSuggestion } from "@/types/dashboard";
 
 export function QuickAddBar() {
     const createTransaction = useCreateTransaction();
+
+    // Merge Module Hooks
+    const [debouncedName, setDebouncedName] = useState("");
+    const { data: rawSuggestions } = useMergeSuggestions(debouncedName);
+    const mergeTransactions = useMergeTransactions();
+    const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
+
+    // Map suggestions to string array for UI
+    const suggestions = rawSuggestions || [];
 
     const form = useForm<QuickAddFormValues>({
         resolver: zodResolver(quickAddSchema),
@@ -29,6 +42,15 @@ export function QuickAddBar() {
         },
     });
 
+    const nameValue = form.watch("name");
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedName(nameValue);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [nameValue]);
+
     const { isSubmitting } = form.formState;
 
     const onSubmit = async (data: QuickAddFormValues) => {
@@ -38,11 +60,6 @@ export function QuickAddBar() {
                 amount: parseFloat(data.amount),
                 date: new Date().toISOString(),
                 // Type is optional in the create payload, often defaults to expense on backend or we can pass it if needed.
-                // quickAddSchema doesn't have type field, implying default behavior.
-                // But useCreateTransaction expects TransactionSchemaType which has type as optional enum.
-                // We'll let backend handle default or pass 'expense' explicitly if logic demands.
-                // Previous code: type: 'expense' (commented out)
-                // type: 'expense'
             });
             toast.success("Expense added successfully");
             form.reset({
@@ -50,9 +67,24 @@ export function QuickAddBar() {
                 amount: "",
                 date: new Date().toISOString(),
             });
+            setDebouncedName(""); // Reset suggestions
         } catch (error) {
             console.error(error);
             toast.error("Failed to add expense");
+        }
+    };
+
+    const handleMerge = async (sourceNames: string[], targetName: string) => {
+        try {
+            await mergeTransactions.mutateAsync({
+                sourceNames,
+                targetName: targetName.toLowerCase() // API requirement
+            });
+            toast.success("Merged successfully");
+            setIsMergeModalOpen(false);
+            form.setValue("name", targetName); // Keep capitalized for UI
+        } catch (error: any) {
+            toast.error(error.message || "Failed to merge");
         }
     };
 
@@ -69,15 +101,21 @@ export function QuickAddBar() {
                         render={({ field }) => (
                             <FormItem className="flex-1 w-full">
                                 <FormControl>
-                                    <InputGroup>
-                                        <InputGroupInput
-                                            placeholder="Expense name (e.g., Coffee)"
-                                            {...field}
+                                    <div className="flex flex-col">
+                                        <InputGroup>
+                                            <InputGroupInput
+                                                placeholder="Expense name (e.g., Coffee)"
+                                                {...field}
+                                            />
+                                            <InputGroupAddon>
+                                                <FaClipboardList className="h-4 w-4" />
+                                            </InputGroupAddon>
+                                        </InputGroup>
+                                        <MergeSuggestionBanner
+                                            suggestions={suggestions}
+                                            onMergeClick={() => setIsMergeModalOpen(true)}
                                         />
-                                        <InputGroupAddon>
-                                            <FaClipboardList className="h-4 w-4" />
-                                        </InputGroupAddon>
-                                    </InputGroup>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -125,6 +163,14 @@ export function QuickAddBar() {
                     </Button>
                 </form>
             </Form>
+
+            <MergeConfirmationModal
+                isOpen={isMergeModalOpen}
+                onClose={() => setIsMergeModalOpen(false)}
+                suggestions={suggestions}
+                onMerge={handleMerge}
+                isMerging={mergeTransactions.isPending}
+            />
         </div>
     );
 }

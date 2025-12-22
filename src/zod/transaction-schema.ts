@@ -14,8 +14,8 @@ export const updateTransactionSchema = transactionSchema.partial().extend({
 });
 
 export const mergeTransactionSchema = z.object({
-    originalName: z.string().min(1, "Original Name is required"),
-    finalName: z.string().min(1, "Final Name is required"),
+    sourceNames: z.array(z.string().min(1, "Source Name is required")),
+    targetName: z.string().min(1, "Target Name is required"),
 });
 
 export const editTransactionSchema = z.object({

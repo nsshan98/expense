@@ -76,20 +76,24 @@ export const useDeleteTransaction = () => {
     });
 };
 
-export const useMergeSuggestions = () => {
+export const useMergeSuggestions = (name?: string) => {
     return useQuery({
-        queryKey: ['merge-suggestions'],
+        queryKey: ['merge-suggestions', name],
         queryFn: async () => {
-            const { data } = await axiosClient.get<MergeSuggestion[]>('/merge/suggestions');
+            if (!name) return [];
+            const { data } = await axiosClient.get<string[]>('/merge/suggestions', {
+                params: { name }
+            });
             return data;
         },
+        enabled: !!name && name.length > 2, // Only fetch if name has 3+ chars
     });
 };
 
 export const useMergeTransactions = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: { originalName: string; finalName: string }) => {
+        mutationFn: async (payload: { sourceNames: string[]; targetName: string }) => {
             const validation = mergeTransactionSchema.safeParse(payload);
             if (!validation.success) {
                 throw new Error(validation.error.issues[0].message);

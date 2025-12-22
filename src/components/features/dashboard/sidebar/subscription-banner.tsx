@@ -6,13 +6,21 @@ import { Card, CardContent } from "@/components/atoms/card";
 import { Crown, Sparkles } from "lucide-react";
 import { usePlans } from "@/hooks/use-plans";
 import { SubscriptionRequestModal } from "@/components/features/subscription/subscription-request-modal";
+import { useSidebar } from "@/components/atoms/sidebar";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/atoms/tooltip";
 
 export function SubscriptionBanner() {
     const { data: plans, isLoading } = usePlans();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { state } = useSidebar();
+
+    const isCollapsed = state === "collapsed";
 
     const activePlan = plans?.find(p => p.is_active);
-    console.log(activePlan);
 
     // Find the best upgrade option by comparing yearly prices (usually the most reliable metric for hierarchy)
     const sortedPlans = [...(plans || [])].sort((a, b) => (b.price_yearly || 0) - (a.price_yearly || 0));
@@ -23,6 +31,37 @@ export function SubscriptionBanner() {
     // Don't show if loading or no suitable plan found
     if (isLoading || !premiumPlan) {
         return null;
+    }
+
+    if (isCollapsed) {
+        return (
+            <>
+                <div className="px-2 pb-2 flex justify-center">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                size="icon"
+                                className="h-9 w-9 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg rounded-full border-none"
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                <Crown size={16} />
+                                <span className="sr-only">Upgrade to {premiumPlan.name}</span>
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                            <p>Upgrade to {premiumPlan.name}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
+
+                <SubscriptionRequestModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    plan={premiumPlan}
+                    initialBillingCycle="yearly"
+                />
+            </>
+        );
     }
 
     return (

@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Transaction } from "@/types/dashboard";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { DeleteTransactionModal } from "./delete-transaction-modal";
+import { Badge } from "@/components/atoms/badge";
 
 export function TransactionsList() {
     const { data: transactions, isLoading } = useTransactions();
@@ -56,64 +57,70 @@ export function TransactionsList() {
                     <CardTitle>All Transactions</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
-                        <div className="grid grid-cols-12 text-sm font-medium text-muted-foreground mb-2 px-2">
-                            <div className="col-span-2">Created</div>
-                            <div className="col-span-2">Transaction Date</div>
-                            <div className="col-span-2">Name</div>
-                            <div className="col-span-2">Category</div>
-                            <div className="col-span-2">Amount</div>
-                            <div className="col-span-1">Type</div>
-                            <div className="col-span-1 text-right">Actions</div>
-                        </div>
-                        <div className="divide-y">
-                            {transactions?.map((transaction) => (
-                                <div key={transaction.id} className="grid grid-cols-12 items-center py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors">
-                                    <div className="col-span-2 text-sm text-muted-foreground">
-                                        {new Date(transaction.date).toLocaleDateString()}
+                    <div className="space-y-2 overflow-x-auto pb-4">
+                        <div className="min-w-[1000px]">
+                            <div className="grid grid-cols-12 text-sm font-medium text-muted-foreground mb-2 px-2 gap-4">
+                                <div className="col-span-1">Created</div>
+                                <div className="col-span-1">Date</div>
+                                <div className="col-span-3">Name</div>
+                                <div className="col-span-2">Category</div>
+                                <div className="col-span-1">Amount</div>
+                                <div className="col-span-1">Type</div>
+                                <div className="col-span-2">Expense Group</div>
+                                <div className="col-span-1 text-right">Actions</div>
+                            </div>
+                            <div className="divide-y text-sm">
+                                {transactions?.map((transaction) => (
+                                    <div key={transaction.id} className="grid grid-cols-12 items-center py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors gap-4">
+                                        <div className="col-span-1 text-muted-foreground whitespace-nowrap">
+                                            {new Date(transaction.date).toLocaleDateString()}
+                                        </div>
+                                        <div className="col-span-1 text-muted-foreground whitespace-nowrap">
+                                            {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : '-'}
+                                        </div>
+                                        <div className="col-span-3 font-medium truncate" title={transaction.name}>{transaction.name}</div>
+                                        <div className="col-span-2">
+                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary whitespace-nowrap">
+                                                {transaction.category}
+                                            </span>
+                                        </div>
+                                        <div className={`col-span-1 font-semibold whitespace-nowrap ${transaction.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
+                                            {transaction.type === 'expense' ? '-' : '+'}৳{transaction.amount.toFixed(2)}
+                                        </div>
+                                        <div className="col-span-1">
+                                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction.type === 'expense' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
+                                                }`}>
+                                                {transaction.type}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-2 capitalize">
+                                            <Badge variant="secondary" className="w-20 rounded-sm">{transaction.normalized_name}</Badge>
+                                        </div>
+                                        <div className="col-span-1 flex justify-end">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleEdit(transaction)}>
+                                                        <Edit className="mr-2 h-4 w-4" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(transaction)}>
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
                                     </div>
-                                    <div className="col-span-2 text-sm text-muted-foreground">
-                                        {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : '-'}
-                                    </div>
-                                    <div className="col-span-2 font-medium truncate" title={transaction.name}>{transaction.name}</div>
-                                    <div className="col-span-2">
-                                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                                            {transaction.category}
-                                        </span>
-                                    </div>
-                                    <div className={`col-span-2 font-semibold ${transaction.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
-                                        {transaction.type === 'expense' ? '-' : '+'}৳{transaction.amount.toFixed(2)}
-                                    </div>
-                                    <div className="col-span-1">
-                                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction.type === 'expense' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
-                                            }`}>
-                                            {transaction.type}
-                                        </span>
-                                    </div>
-                                    <div className="col-span-1 flex justify-end">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleEdit(transaction)}>
-                                                    <Edit className="mr-2 h-4 w-4" />
-                                                    Edit
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(transaction)}>
-                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                    Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                </div>
-                            ))}
-                            {(!transactions || transactions.length === 0) && (
-                                <div className="text-center py-8 text-muted-foreground">No transactions found.</div>
-                            )}
+                                ))}
+                                {(!transactions || transactions.length === 0) && (
+                                    <div className="text-center py-8 text-muted-foreground">No transactions found.</div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </CardContent>

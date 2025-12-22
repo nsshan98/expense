@@ -7,6 +7,7 @@ export interface Transaction {
     categoryId?: string;
     amount: number;
     type: 'income' | 'expense';
+    normalized_name: string;
 }
 
 export interface Budget {
@@ -16,6 +17,7 @@ export interface Budget {
     amount: number;
     spent_this_month: number;
     remaining: number;
+    over?: number;
     percentage: number;
     month?: string;
 }
