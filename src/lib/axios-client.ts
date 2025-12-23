@@ -1,7 +1,7 @@
 // Axios client configuration
 // import { doUserLogOut } from "@/actions/auth";
 import axios from "axios";
-import { getSession } from "./session";
+import { getSession, deleteSession } from "./session";
 
 const baseURL = process.env.NEXT_PUBLIC_API_CLIENT_BASE_URL;
 
@@ -24,17 +24,40 @@ axiosClient.interceptors.request.use(async (request) => {
   return request;
 });
 
+import { refreshToken } from "./auth";
+
 axiosClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
     console.log(`error`, error);
-    if (error.response.status === 401) {
-      //   doUserLogOut();
-      console.log("Problem here");
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const session = await getSession();
+        if (session?.refreshToken) {
+          const newAccessToken = await refreshToken(session.refreshToken);
+          if (newAccessToken) {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return axiosClient(originalRequest);
+          }
+        }
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+      }
+
+      // If refresh fails or no session, logout
+      /* @ts-ignore */
+      if (typeof window !== "undefined") {
+        await deleteSession(); // explicit clear of session
+        window.location.href = "/auth/login";
+      }
     }
-    throw error;
+    return Promise.reject(error);
   }
 );
 

@@ -36,7 +36,7 @@ import { Budget } from "@/types/dashboard";
 const budgetItemSchema = z.object({
     categoryName: z.string().min(1, "Category name is required"),
     categoryType: z.enum(["EXPENSE", "INCOME"]),
-    amount: z.number().min(0, "Amount must be positive"),
+    amount: z.number().min(0.01, "Amount must be greater than 0"),
     month: z.date().optional(),
 });
 
@@ -73,19 +73,15 @@ export function BudgetBulkCreateForm() {
 
     const onSubmit = async (data: BulkCreateBudgetValues) => {
         try {
-            // Process each budget item sequentially or in parallel
-            // Integrating with the existing singleton create mutation
-            // ideally backend should support bulk, but looping is fine for now
-            const promises = data.budgets.map((item) =>
-                createBudget.mutateAsync({
-                    categoryName: item.categoryName,
-                    categoryType: item.categoryType,
-                    amount: item.amount,
-                    month: item.month ? format(item.month, "MM-yyyy") : undefined,
-                })
-            );
+            // Process budgets in a single bulk request
+            const payloads = data.budgets.map((item) => ({
+                categoryName: item.categoryName,
+                categoryType: item.categoryType,
+                amount: item.amount,
+                month: item.month ? format(item.month, "MM-yyyy") : undefined,
+            }));
 
-            await Promise.all(promises);
+            await createBudget.mutateAsync(payloads);
             toast.success(`Successfully created ${data.budgets.length} budgets`);
 
             // Reset form to initial state

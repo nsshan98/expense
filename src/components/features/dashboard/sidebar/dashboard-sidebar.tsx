@@ -21,68 +21,74 @@ import NavUser from "./nav-user";
 import TeamInfo from "./team-info";
 import { SubscriptionBanner } from "./subscription-banner";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+// This is sample data structure
+const navMainData = [
+  {
+    title: "MAIN MENU",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: SquareTerminal,
+        isActive: true,
+      },
+      {
+        title: "Transactions",
+        url: "/transactions",
+        icon: Receipt,
+      },
+      {
+        title: "Analytics",
+        url: "/analytics",
+        icon: ChartColumnBig,
+      },
+      {
+        title: "Budgets",
+        url: "/budgets",
+        icon: Wallet,
+      },
+      {
+        title: "Subscription",
+        url: "/subscription",
+        icon: CreditCard,
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings2,
+      },
+    ],
   },
-  navMain: [
-    {
-      title: "MAIN MENU",
-      items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-          icon: SquareTerminal,
-          isActive: true,
-        },
-        {
-          title: "Transactions",
-          url: "/transactions",
-          icon: Receipt,
-        },
-        {
-          title: "Analytics",
-          url: "/analytics",
-          icon: ChartColumnBig,
-        },
-        {
-          title: "Budgets",
-          url: "/budgets",
-          icon: Wallet,
-        },
-        {
-          title: "Subscription",
-          url: "/subscription",
-          icon: CreditCard,
-        },
-        {
-          title: "Settings",
-          url: "/settings",
-          icon: Settings2,
-        },
-      ],
-    },
-  ],
-};
+];
+
+interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: {
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+}
 
 export default function DashboardSidebar({
+  user,
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
+}: DashboardSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamInfo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMainData} />
         <div className="mt-auto" />
         <SubscriptionBanner />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={{
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar || "/avatars/shadcn.jpg"
+        }} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

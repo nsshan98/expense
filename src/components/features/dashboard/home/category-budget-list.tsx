@@ -41,13 +41,13 @@ export function CategoryBudgetList() {
                     {budgets?.map((budget) => (
                         <div key={budget.id} className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span className="font-medium">{budget.category.name}</span>
+                                <span className="font-medium capitalize">{budget.category.name}</span>
                                 <span className="text-muted-foreground">৳{budget.spent_this_month} / ৳{budget.amount}</span>
                             </div>
                             <Progress value={budget.percentage} className="h-2" />
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>{budget.percentage.toFixed(0)}% Spent</span>
-                                <span>৳{budget.remaining} {budget.remaining < 0 ? "Remainingfff" : "Over"}</span>
+                                <span>৳{budget.remaining ? budget.remaining : budget.over} {budget.remaining ? "Remaining" : "Over"}</span>
                             </div>
                         </div>
                     ))}

@@ -3,7 +3,7 @@ export interface Transaction {
     date: string;
     created_at?: string;
     name: string;
-    category: string;
+    category: Category | string;
     categoryId?: string;
     amount: number;
     type: 'income' | 'expense';
@@ -25,7 +25,7 @@ export interface Budget {
 export interface Category {
     id: string;
     name: string;
-    type?: "EXPENSE" | "INCOME";
+    type: "EXPENSE" | "INCOME";
     color?: string;
 }
 

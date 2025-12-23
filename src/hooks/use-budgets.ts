@@ -26,18 +26,25 @@ export const useBudget = (id: string) => {
     });
 };
 
+export type CreateBudgetPayload =
+    | { categoryId: string; amount: number; month?: string }
+    | { categoryName: string; categoryType: "EXPENSE" | "INCOME"; amount: number; month?: string };
+
 export const useCreateBudget = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: { categoryId: string; amount: number; month?: string } | { categoryName: string; categoryType: "EXPENSE" | "INCOME"; amount: number; month?: string }) => {
-            // Note: Zod schema union validation is a bit complex to handle generically here if we strictly want to validate before sending.
-            // But trusting the payload structure matches one of the options.
-            const validation = createBudgetSchema.safeParse(payload);
-            if (!validation.success) {
-                // Try to get a meaningful error message
-                throw new Error("Invalid budget data");
+        mutationFn: async (payload: CreateBudgetPayload | CreateBudgetPayload[]) => {
+            const payloads = Array.isArray(payload) ? payload : [payload];
+
+            // Validate all payloads
+            for (const p of payloads) {
+                const validation = createBudgetSchema.safeParse(p);
+                if (!validation.success) {
+                    throw new Error("Invalid budget data: " + validation.error.issues[0].message);
+                }
             }
-            const { data } = await axiosClient.post('/budgets/create', payload);
+
+            const { data } = await axiosClient.post('/budgets/create', payloads);
             return data;
         },
         onSuccess: () => {

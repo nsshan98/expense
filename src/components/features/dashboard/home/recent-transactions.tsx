@@ -42,16 +42,15 @@ export function RecentTransactions() {
                     <div className="divide-y">
                         {transactions?.slice(0, 5).map((transaction) => (
                             <div key={transaction.id} className="grid grid-cols-4 items-center py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors">
-                                <div className="text-sm text-muted-foreground">{new Date(transaction.date).toLocaleDateString()}</div>
-                                <div className="font-medium">{transaction.name}</div>
-                                <div className="text-sm text-muted-foreground">{transaction.category}</div>
+                                <div className="text-sm text-muted-foreground">{new Date(transaction?.date).toLocaleDateString()}</div>
+                                <div className="font-medium capitalize">{transaction?.name}</div>
+                                <div className="text-sm text-muted-foreground capitalize">
+                                    {typeof transaction?.category === 'string' ? transaction?.category : transaction?.category?.name}
+                                </div>
                                 <div className="flex items-center justify-between">
-                                    <span className={transaction.type === 'expense' ? "text-destructive" : "text-primary"}>
-                                        {transaction.type === 'expense' ? '-' : '+'}${transaction.amount.toFixed(2)}
+                                    <span className={transaction?.type === 'expense' ? "text-destructive" : "text-primary"}>
+                                        {transaction?.type === 'expense' ? '-' : '+'}${transaction?.amount.toFixed(2)}
                                     </span>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
                                 </div>
                             </div>
                         ))}

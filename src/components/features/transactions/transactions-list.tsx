@@ -73,28 +73,28 @@ export function TransactionsList() {
                                 {transactions?.map((transaction) => (
                                     <div key={transaction.id} className="grid grid-cols-12 items-center py-3 px-2 hover:bg-muted/50 rounded-lg transition-colors gap-4">
                                         <div className="col-span-1 text-muted-foreground whitespace-nowrap">
-                                            {new Date(transaction.date).toLocaleDateString()}
+                                            {new Date(transaction?.date).toLocaleDateString()}
                                         </div>
                                         <div className="col-span-1 text-muted-foreground whitespace-nowrap">
-                                            {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : '-'}
+                                            {transaction?.created_at ? new Date(transaction.created_at).toLocaleDateString() : '-'}
                                         </div>
-                                        <div className="col-span-3 font-medium truncate" title={transaction.name}>{transaction.name}</div>
+                                        <div className="col-span-3 font-medium truncate capitalize" title={transaction?.name}>{transaction?.name}</div>
                                         <div className="col-span-2">
-                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary whitespace-nowrap">
-                                                {transaction.category}
+                                            <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary whitespace-nowrap capitalize">
+                                                {typeof transaction?.category === 'string' ? transaction?.category : transaction?.category?.name}
                                             </span>
                                         </div>
-                                        <div className={`col-span-1 font-semibold whitespace-nowrap ${transaction.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
-                                            {transaction.type === 'expense' ? '-' : '+'}৳{transaction.amount.toFixed(2)}
+                                        <div className={`col-span-1 font-semibold whitespace-nowrap ${transaction?.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
+                                            {transaction?.type === 'expense' ? '-' : '+'}৳{transaction?.amount.toFixed(2)}
                                         </div>
                                         <div className="col-span-1">
-                                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction.type === 'expense' ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'
+                                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction?.type === 'expense' ? 'bg-destructive/95 text-destructive' : 'bg-primary/10 text-primary'
                                                 }`}>
-                                                {transaction.type}
+                                                {typeof transaction?.category === 'string' ? transaction?.category : transaction?.category?.type}
                                             </span>
                                         </div>
                                         <div className="col-span-2 capitalize">
-                                            <Badge variant="secondary" className="w-20 rounded-sm">{transaction.normalized_name}</Badge>
+                                            <Badge variant="secondary" className="px-2 py-1 rounded-sm">{transaction?.normalized_name}</Badge>
                                         </div>
                                         <div className="col-span-1 flex justify-end">
                                             <DropdownMenu>

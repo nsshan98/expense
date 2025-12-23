@@ -10,7 +10,16 @@ import { Utensils, Bus, ShoppingBag, Home, Coffee, Zap, Plus, X } from "lucide-r
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/atoms/popover";
+import { useState } from "react";
 import {
     Form,
     FormControl,
@@ -20,6 +29,7 @@ import {
     FormMessage,
 } from "@/components/atoms/form";
 import { budgetSetupSchema, BudgetSetupFormValues } from "@/zod/budget-schema";
+import { MonthPicker } from "@/components/atoms/month-picker";
 
 const defaultCategories = [
     { category: "Food", icon: <Utensils className="h-5 w-5 text-primary" />, amount: "10000" },
@@ -35,6 +45,8 @@ export function BudgetSetupForm() {
     const createCategory = useCreateCategory();
     const createBudget = useCreateBudget();
     const { data: existingBudgets } = useBudgets();
+    const [date, setDate] = useState<Date>(new Date());
+
 
     const form = useForm<BudgetSetupFormValues>({
         resolver: zodResolver(budgetSetupSchema),
@@ -43,7 +55,6 @@ export function BudgetSetupForm() {
                 id: `default-${idx}`,
                 category: cat.category,
                 amount: cat.amount,
-                isCustom: false,
             })),
         },
     });
@@ -55,10 +66,8 @@ export function BudgetSetupForm() {
 
     const handleAddCustom = () => {
         append({
-            id: `custom-${Date.now()}`,
             category: "",
             amount: "0",
-            isCustom: true,
         });
     };
 
@@ -72,14 +81,20 @@ export function BudgetSetupForm() {
         }
 
         try {
-            // Create budgets directly (this will auto-create categories)
-            for (const budget of validBudgets) {
-                await createBudget.mutateAsync({
-                    categoryName: budget.category,
-                    categoryType: "EXPENSE", // Defaulting to EXPENSE for budget setup
-                    amount: parseFloat(budget.amount),
-                });
-            }
+            const monthStr = format(date, "MM-yyyy");
+
+            // Prepare payloads
+            const budgetPayloads = validBudgets.map(budget => ({
+                categoryName: budget.category,
+                categoryType: "EXPENSE" as const,
+                amount: parseFloat(budget.amount),
+                month: monthStr,
+            }));
+
+            console.log("Submitting budgets:", budgetPayloads);
+
+            // Create budgets
+            await createBudget.mutateAsync(budgetPayloads);
 
             toast.success("Budgets created successfully!");
             router.push("/dashboard");
@@ -106,68 +121,93 @@ export function BudgetSetupForm() {
                 <div className="space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold text-foreground">Set your monthly budgets</h1>
-                        <p className="text-muted-foreground mt-2">Helps us predict and warn you early.</p>
+                        <div className="flex items-center justify-between">
+                            <p className="text-muted-foreground mt-2">Helps us predict and warn you early.</p>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"default"}
+                                        className={cn(
+                                            "w-[240px] justify-start text-left font-normal",
+                                            !date && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {date ? format(date, "MMMM yyyy") : <span>Pick a month</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="end">
+                                    <MonthPicker
+                                        value={date}
+                                        onValueChange={(value) => setDate(value)}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                             <div className="space-y-4">
-                                {fields.map((field, index) => (
-                                    <div key={field.id} className="space-y-2">
-                                        {field.isCustom ? (
-                                            <div className="flex items-center gap-2">
+                                {fields.map((field, index) => {
+                                    const isCustom = index >= defaultCategories.length;
+                                    return (
+                                        <div key={field.id} className="space-y-2">
+                                            {isCustom ? (
+                                                <div className="flex items-center gap-2">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name={`budgets.${index}.category`}
+                                                        render={({ field }) => (
+                                                            <FormItem className="flex-1">
+                                                                <FormControl>
+                                                                    <Input placeholder="Category name" {...field} />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => remove(index)}
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <label className="text-sm font-medium text-foreground">
+                                                    {form.getValues(`budgets.${index}.category`)}
+                                                </label>
+                                            )}
+
+                                            <div className="relative">
+                                                <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                                                    {getIcon(index, isCustom)}
+                                                </div>
                                                 <FormField
                                                     control={form.control}
-                                                    name={`budgets.${index}.category`}
+                                                    name={`budgets.${index}.amount`}
                                                     render={({ field }) => (
-                                                        <FormItem className="flex-1">
+                                                        <FormItem>
                                                             <FormControl>
-                                                                <Input placeholder="Category name" {...field} />
+                                                                <Input
+                                                                    type="number"
+                                                                    className="pl-12 bg-muted/50 border-border text-lg font-medium"
+                                                                    placeholder="0"
+                                                                    {...field}
+                                                                />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
                                                     )}
                                                 />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => remove(index)}
-                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
                                             </div>
-                                        ) : (
-                                            <label className="text-sm font-medium text-foreground">
-                                                {form.getValues(`budgets.${index}.category`)}
-                                            </label>
-                                        )}
-
-                                        <div className="relative">
-                                            <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                                                {getIcon(index, field.isCustom)}
-                                            </div>
-                                            <FormField
-                                                control={form.control}
-                                                name={`budgets.${index}.amount`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl>
-                                                            <Input
-                                                                type="number"
-                                                                className="pl-12 bg-muted/50 border-border text-lg font-medium"
-                                                                placeholder="0"
-                                                                {...field}
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
 
                                 <Button
                                     type="button"
@@ -183,7 +223,7 @@ export function BudgetSetupForm() {
                             <div className="flex gap-3 pt-4">
                                 <Button
                                     type="button"
-                                    variant="outline"
+                                    variant="secondary"
                                     onClick={() => router.back()}
                                     className="flex-1"
                                 >

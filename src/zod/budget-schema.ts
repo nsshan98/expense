@@ -15,7 +15,6 @@ export const createBudgetSchema = z.union([
 ]);
 
 export const updateBudgetSchema = z.object({
-    id: z.string().min(1, "ID is required"),
     amount: z.number().min(0.01, "Amount must be greater than 0").optional(),
 });
 
@@ -34,12 +33,10 @@ export const editBudgetSchema = z.object({
 export type EditBudgetFormValues = z.infer<typeof editBudgetSchema>;
 
 export const budgetItemSchema = z.object({
-    id: z.string(),
     category: z.string().min(1, "Category name is required"),
     amount: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
         message: "Amount must be a positive number",
     }),
-    isCustom: z.boolean().optional(),
 });
 
 export const budgetSetupSchema = z.object({

@@ -7,6 +7,7 @@ import DashboardHeader from "@/components/features/dashboard/sidebar/dashboard-h
 import { Baumans, Plus_Jakarta_Sans } from "next/font/google";
 import { Metadata } from "next";
 import { getSession } from "@/lib/session";
+import { getCurrentUser } from "@/services/user";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -30,7 +31,22 @@ export default async function AdminPanelLayout({
   children: ReactNode;
 }) {
   const session = await getSession();
-  console.log(session);
+  const apiUser = await getCurrentUser();
+
+  // Prioritize API data, fall back to session data, then default
+  const user = apiUser ? {
+    name: apiUser.name,
+    email: apiUser.email,
+    avatar: "/avatars/shadcn.jpg"
+  } : (session?.user ? {
+    name: session.user.name,
+    email: session.user.email || "user@example.com", // Fallback if old session cookie lacks email
+    avatar: "/avatars/shadcn.jpg"
+  } : {
+    name: "User",
+    email: "user@example.com",
+    avatar: "/avatars/shadcn.jpg"
+  });
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -44,7 +60,7 @@ export default async function AdminPanelLayout({
           disableTransitionOnChange
         >
           <SidebarProvider>
-            <DashboardSidebar />
+            <DashboardSidebar user={user} />
             <SidebarInset>
               <DashboardHeader />
 

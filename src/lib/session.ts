@@ -9,6 +9,9 @@ export type Session = {
   user: {
     id: string;
     name: string;
+    email: string;
+    role?: string;
+    plan_id?: string | null;
   };
   accessToken: string;
   refreshToken: string;
@@ -47,10 +50,11 @@ export async function getSession() {
       algorithms: ["HS256"],
     });
 
-    return payload as Session;
+    // Ensure user object has email to match type, though runtime it might be missing if old cookie
+    return payload as unknown as Session;
   } catch (err) {
     console.error("Failed to verify the session", err);
-    redirect("/auth/sigin");
+    return null;
   }
 }
 
@@ -73,11 +77,27 @@ export async function updateTokens({
   if (!payload) throw new Error("Session not found");
 
   const newPayload: Session = {
-    user: {
-      ...payload.user,
-    },
+    ...payload,
     accessToken,
     refreshToken,
+  };
+
+  await createSession(newPayload);
+}
+
+export async function updateSessionUser(user: Partial<Session['user']>) {
+  const cookie = (await cookies()).get("session")?.value;
+  if (!cookie) return null;
+
+  const { payload } = await jwtVerify<Session>(cookie, encodedKey);
+  if (!payload) throw new Error("Session not found");
+
+  const newPayload: Session = {
+    ...payload,
+    user: {
+      ...payload.user,
+      ...user,
+    },
   };
 
   await createSession(newPayload);

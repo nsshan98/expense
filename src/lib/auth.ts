@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { createSession, deleteSession } from "./session";
+import { createSession, deleteSession, updateTokens } from "./session";
 import { FormState, LoginFormSchema } from "./type";
 
 export async function signIn(
@@ -38,15 +38,18 @@ export async function signIn(
 
     if (response.ok) {
       const result = await response.json();
-      // TODO: Create The Session For Authenticated User.
 
       const accessToken = result.accessToken || result.access_token;
       const refreshToken = result.refreshToken || result.refresh_token;
 
+      // Assuming result.user matches the expected structure, or falling back
       await createSession({
         user: {
           id: String(result.user?.id),
           name: result.user?.name || "User",
+          email: result.user?.email || validatedFields.data.email,
+          role: result.user?.role,
+          plan_id: result.user?.plan_id,
         },
         accessToken,
         refreshToken,
@@ -95,15 +98,10 @@ export const refreshToken = async (oldRefreshToken: string) => {
     const accessToken = result.accessToken || result.access_token;
     const refreshToken = result.refreshToken || result.refresh_token;
 
-    // update session with new tokens
-    const updateRes = await fetch("http://localhost:3000/api/auth/update", {
-      method: "POST",
-      body: JSON.stringify({
-        accessToken,
-        refreshToken,
-      }),
+    await updateTokens({
+      accessToken,
+      refreshToken,
     });
-    if (!updateRes.ok) throw new Error("Failed to update the tokens");
 
     return accessToken;
   } catch (err) {
