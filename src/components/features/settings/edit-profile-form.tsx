@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +18,8 @@ import {
 } from "@/components/atoms/form";
 import { Input } from "@/components/atoms/input";
 import { EditProfileSchema, EditProfileFormValues } from "@/zod/user-schema";
-import { axiosClient } from "@/lib/axios-client";
 import { updateSessionUser } from "@/lib/session";
+import { useUpdateUserProfile } from "@/hooks/use-user-profile";
 
 interface EditProfileFormProps {
     initialData: {
@@ -32,6 +32,7 @@ interface EditProfileFormProps {
 export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const updateUserProfile = useUpdateUserProfile();
 
     const form = useForm<EditProfileFormValues>({
         resolver: zodResolver(EditProfileSchema),
@@ -43,9 +44,9 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
 
     async function onSubmit(data: EditProfileFormValues) {
         try {
-            await axiosClient.patch(`/users/${userId}`, {
-                name: data.name,
-                email: data.email,
+            await updateUserProfile.mutateAsync({
+                userId,
+                data
             });
 
             // Update the session cookie with new details
@@ -62,7 +63,9 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
             });
         } catch (error: any) {
             console.error("Failed to update profile:", error);
-            toast.error(error.response?.data?.message || "Failed to update profile");
+            // Handle error message gracefully
+            const message = error?.response?.data?.message || "Failed to update profile";
+            toast.error(message);
         }
     }
 
@@ -115,8 +118,8 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={form.formState.isSubmitting || isPending}>
-                            {form.formState.isSubmitting || isPending ? (
+                        <Button type="submit" disabled={form.formState.isSubmitting || isPending || updateUserProfile.isPending}>
+                            {form.formState.isSubmitting || isPending || updateUserProfile.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Saving...

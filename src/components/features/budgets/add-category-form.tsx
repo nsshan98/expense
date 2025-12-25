@@ -106,7 +106,7 @@ export function AddCategoryForm() {
                                     <FormLabel>Type</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
-                                            <SelectTrigger className="bg-muted/50">
+                                            <SelectTrigger className="w-full bg-muted/50">
                                                 <SelectValue placeholder="Select type" />
                                             </SelectTrigger>
                                         </FormControl>

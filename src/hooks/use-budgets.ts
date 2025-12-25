@@ -58,13 +58,14 @@ export const useCreateBudget = () => {
 export const useUpdateBudget = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: { id: string; amount?: number }) => {
+        mutationFn: async (payload: { id: string; amount?: number; month?: string }) => {
             const validation = updateBudgetSchema.safeParse(payload);
             if (!validation.success) {
                 throw new Error(validation.error.issues[0].message);
             }
             const { data } = await axiosClient.patch(`/budgets/${payload.id}`, {
-                amount: payload.amount
+                amount: payload.amount,
+                month: payload.month,
             });
             return data;
         },

@@ -47,7 +47,7 @@ export const useInsights = () => {
     const insightsQuery = useQuery({
         queryKey: ["insights"],
         queryFn: async () => {
-            const { data } = await axiosClient.get<Insight[]>("/expenses/insights");
+            const { data } = await axiosClient.get<Insight[]>("/insights");
             return data;
         },
     });

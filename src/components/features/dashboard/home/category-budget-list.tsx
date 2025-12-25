@@ -15,8 +15,8 @@ export function CategoryBudgetList() {
                     <CardTitle>Category Budgets</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-6">
-                        {[1, 2, 3].map((i) => (
+                    <div className="space-y-6 h-[300px] overflow-y-auto pr-2">
+                        {[1, 2, 3, 4, 5].map((i) => (
                             <div key={i} className="space-y-2">
                                 <div className="flex justify-between">
                                     <Skeleton className="h-4 w-[100px]" />
@@ -37,7 +37,7 @@ export function CategoryBudgetList() {
                 <CardTitle>Category Budgets</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="space-y-6">
+                <div className="space-y-6 h-[300px] overflow-y-auto pr-2">
                     {budgets?.map((budget) => (
                         <div key={budget.id} className="space-y-2">
                             <div className="flex justify-between text-sm">

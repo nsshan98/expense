@@ -83,7 +83,7 @@ export function BudgetManager() {
                     className="gap-2"
                 >
                     <Plus className="h-4 w-4" />
-                    Add Multiple
+                    Add All Budgets at Once
                 </Button>
 
                 <div className="flex gap-2">

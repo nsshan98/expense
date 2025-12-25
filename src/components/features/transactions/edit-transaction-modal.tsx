@@ -156,24 +156,24 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="amount"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Amount</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            placeholder="0.00"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="amount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Amount</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                placeholder="0.00"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="categoryId"
@@ -186,7 +186,7 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                                             value={field.value}
                                         >
                                             <FormControl>
-                                                <SelectTrigger className="capitalize">
+                                                <SelectTrigger className="capitalize w-full">
                                                     <SelectValue placeholder={transaction?.category && typeof transaction.category === 'object' ? transaction.category.name : (transaction?.category as string) || "Select category"} />
                                                 </SelectTrigger>
                                             </FormControl>

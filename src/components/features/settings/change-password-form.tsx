@@ -17,7 +17,7 @@ import {
 } from "@/components/atoms/form";
 import { Input } from "@/components/atoms/input";
 import { ChangePasswordSchema, ChangePasswordFormValues } from "@/zod/user-schema";
-import { axiosClient } from "@/lib/axios-client";
+import { useChangeUserPassword } from "@/hooks/use-user-profile";
 
 interface ChangePasswordFormProps {
     userId: string;
@@ -25,6 +25,7 @@ interface ChangePasswordFormProps {
 
 export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
     const [isPending, startTransition] = useTransition();
+    const changePassword = useChangeUserPassword();
 
     const form = useForm<ChangePasswordFormValues>({
         resolver: zodResolver(ChangePasswordSchema),
@@ -37,16 +38,20 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
 
     async function onSubmit(data: ChangePasswordFormValues) {
         try {
-            await axiosClient.patch(`/users/${userId}`, {
-                oldPassword: data.oldPassword,
-                password: data.newPassword,
+            await changePassword.mutateAsync({
+                userId,
+                data: {
+                    oldPassword: data.oldPassword,
+                    newPassword: data.newPassword
+                }
             });
 
             toast.success("Password updated successfully");
             form.reset();
         } catch (error: any) {
             console.error("Failed to update password:", error);
-            toast.error(error.response?.data?.message || "Failed to update password");
+            const message = error?.response?.data?.message || "Failed to update password";
+            toast.error(message);
         }
     }
 
@@ -123,8 +128,8 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button type="submit" disabled={form.formState.isSubmitting || isPending}>
-                            {form.formState.isSubmitting || isPending ? (
+                        <Button type="submit" disabled={form.formState.isSubmitting || changePassword.isPending}>
+                            {form.formState.isSubmitting || changePassword.isPending ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Updating...

@@ -39,26 +39,39 @@ export function InsightsPanel() {
                 </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-3">
-                {insights.map((insight) => {
+                {insights.map((insight, index) => {
                     let colorClass = "bg-primary/10 border-primary/20 text-primary";
                     let Icon = Info;
+                    let title = insight.title || "Insight";
 
                     if (insight.type === "warning") {
                         colorClass = "bg-destructive/10 border-destructive/20 text-destructive";
                         Icon = AlertCircle;
-                    } else if (insight.type === "success") {
-                        colorClass = "bg-muted/50 border-border text-foreground";
+                        title = "Warning";
+                    } else if (insight.type === "success" || insight.type === "positive") {
+                        colorClass = "bg-green-500/10 border-green-500/20 text-green-600";
                         Icon = TrendingDown;
+                        title = "Good News";
+                    } else if (insight.type === "highlight") {
+                        colorClass = "bg-primary/10 border-primary/20 text-primary";
+                        title = "Highlight";
                     }
 
+                    if (insight.category?.name) {
+                        title = `${title}: ${insight.category.name}`;
+                    }
+
+                    // Fallback if title is explicitly provided
+                    if (insight.title) title = insight.title;
+
                     return (
-                        <div key={insight.id} className={`p-4 rounded-lg border space-y-2 ${colorClass}`}>
+                        <div key={insight.id || index} className={`p-4 rounded-lg border space-y-2 ${colorClass}`}>
                             <div className="flex items-center gap-2 font-medium text-sm">
                                 <Icon className="w-4 h-4" />
-                                {insight.title}
+                                <span className="capitalize">{title}</span>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                {insight.message}
+                                {insight.text || insight.message}
                             </p>
                         </div>
                     );

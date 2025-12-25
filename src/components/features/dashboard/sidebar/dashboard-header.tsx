@@ -15,9 +15,6 @@ export default function DashboardHeader() {
         />
         <h1 className="text-base font-medium">Documents</h1>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="hidden sm:flex">
-            GitHub
-          </Button>
           <ThemeToggle />
         </div>
       </div>

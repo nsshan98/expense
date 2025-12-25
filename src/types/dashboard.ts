@@ -75,10 +75,16 @@ export interface BudgetCategory {
 }
 
 export interface Insight {
-    id: string;
-    type: "warning" | "success" | "info";
-    title: string;
-    message: string;
+    type: "warning" | "success" | "info" | "positive" | "highlight";
+    text: string;
+    category?: {
+        name: string;
+    };
+    priorityScore: number;
+    // Legacy fields for backward compatibility if needed, though we should update components
+    id?: string;
+    title?: string;
+    message?: string;
 }
 
 export interface CreateExpensePayload {

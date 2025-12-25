@@ -191,7 +191,7 @@ export function BudgetBulkCreateForm() {
                                                 <FormItem>
                                                     <FormLabel className="md:hidden">Category Name</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="e.g. Groceries" {...field} />
+                                                        <Input placeholder="e.g. Groceries" className="capitalize" {...field} />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

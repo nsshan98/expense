@@ -16,6 +16,7 @@ export const createBudgetSchema = z.union([
 
 export const updateBudgetSchema = z.object({
     amount: z.number().min(0.01, "Amount must be greater than 0").optional(),
+    month: z.string().optional(),
 });
 
 export type CreateBudgetSchemaType = z.infer<typeof createBudgetSchema>;
