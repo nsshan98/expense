@@ -43,6 +43,12 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
     });
 
     async function onSubmit(data: EditProfileFormValues) {
+        // Check if data is same as initial
+        if (data.name === initialData.name && data.email === initialData.email) {
+            toast.info("No changes detected");
+            return;
+        }
+
         try {
             await updateUserProfile.mutateAsync({
                 userId,

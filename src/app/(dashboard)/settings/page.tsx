@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { User, Shield, KeyRound } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { EditProfileForm } from "@/components/features/settings/edit-profile-form";
+import { ApiKeyForm } from "@/components/features/settings/api-key-form";
 import { ChangePasswordForm } from "@/components/features/settings/change-password-form";
 import { redirect } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/atoms/tabs";
@@ -39,7 +40,7 @@ export default async function SettingsPage() {
     const userData = await getUserProfile(session.accessToken);
 
     return (
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
                 <p className="text-muted-foreground">
@@ -66,13 +67,23 @@ export default async function SettingsPage() {
                         </CardHeader>
                         <CardContent>
                             {userData ? (
-                                <EditProfileForm
-                                    initialData={{
-                                        name: userData.name || "",
-                                        email: userData.email || ""
-                                    }}
-                                    userId={session.user.id}
-                                />
+                                <div className="space-y-6">
+                                    <EditProfileForm
+                                        initialData={{
+                                            name: userData.name || "",
+                                            email: userData.email || ""
+                                        }}
+                                        userId={session.user.id}
+                                    />
+                                    <div className="border-t pt-6">
+                                        <h3 className="text-lg font-medium mb-4">API Configuration</h3>
+                                        <ApiKeyForm
+                                            userId={session.user.id}
+                                            hasKey={userData.hasGeminiKey || !!userData.geminiApiKeyMasked}
+                                            maskedKey={userData.geminiApiKeyMasked}
+                                        />
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="text-sm text-destructive">
                                     Failed to load user profile. Please try again later.

@@ -10,6 +10,14 @@ export interface Transaction {
     normalized_name: string;
 }
 
+export interface PaginatedTransactionsResponse {
+    data: Transaction[];
+    meta: {
+        hasNextPage: boolean;
+        nextOffset: number | null;
+    };
+}
+
 export interface Budget {
     id: string;
     category: Category;
@@ -92,4 +100,70 @@ export interface CreateExpensePayload {
     amount: number;
     category?: string;
     date?: string;
+}
+export interface TrendAnalysis {
+    chart_data: Array<{
+        date: string;
+        fullDate: string;
+        amount: number;
+    }>;
+    trending_categories: Array<{
+        name: string;
+        percentage: number;
+        amount: number;
+    }>;
+}
+
+export interface FinancialSnapshot {
+    total_spend: number;
+    savings: number;
+    net_cash_flow: number;
+}
+
+export interface TopSpendCategory {
+    name: string;
+    amount: number;
+    percentage: number;
+}
+
+export interface BudgetStatus {
+    // Define properties as needed according to empty array in example
+    // Or if it matches existing Budget interface
+    id?: string;
+    name?: string;
+    budget?: number;
+    spent?: number;
+}
+
+export interface Forecast {
+    message: string;
+    status: string;
+    amount: number;
+}
+
+export interface SmartInsight {
+    type: "warning" | "success" | "info" | "positive" | "highlight";
+    text: string;
+    category?: {
+        name: string;
+    };
+    priorityScore: number;
+}
+
+export interface FastStats {
+    todays_spend: number;
+    this_month_spend: number;
+    trend_percentage: number;
+    total_remaining_budget: number;
+    remaining_percentage: number;
+}
+
+export interface DashboardResponse {
+    fast_stats: FastStats;
+    trend_analysis: TrendAnalysis;
+    financial_snapshot: FinancialSnapshot;
+    top_spend_categories: TopSpendCategory[];
+    budget_status: Budget[]; // Reusing Budget interface if compatible, otherwise define new
+    forecast: Forecast;
+    smart_insight: SmartInsight;
 }

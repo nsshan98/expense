@@ -1,18 +1,47 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { axiosClient } from '@/lib/axios-client';
-import { Transaction, MergeSuggestion } from '@/types/dashboard';
+import { Transaction, MergeSuggestion, PaginatedTransactionsResponse } from '@/types/dashboard';
 import { transactionSchema, mergeTransactionSchema, updateTransactionSchema, TransactionSchemaType, UpdateTransactionSchemaType } from '@/zod/transaction-schema';
 
 export const useTransactions = () => {
     return useQuery({
         queryKey: ['transactions'],
         queryFn: async () => {
-            const { data } = await axiosClient.get<Transaction[]>('/transactions/all');
-            return data;
+            const { data } = await axiosClient.get<PaginatedTransactionsResponse>('/transactions/all', {
+                params: { limit: 100 }
+            });
+            return data.data.map((t: any) => ({
+                ...t,
+                type: t.type || (t.category?.type === 'EXPENSE' ? 'expense' : 'income'),
+            }));
         },
     });
 };
 
+export const useInfiniteTransactions = () => {
+    return useInfiniteQuery({
+        queryKey: ['transactions', 'infinite'],
+        queryFn: async ({ pageParam = 0 }) => {
+            const { data } = await axiosClient.get<PaginatedTransactionsResponse>('/transactions/all', {
+                params: {
+                    limit: 5,
+                    offset: pageParam,
+                },
+            });
+            return {
+                ...data,
+                data: data.data.map((t: any) => ({
+                    ...t,
+                    type: t.type || (t.category?.type === 'EXPENSE' ? 'expense' : 'income'),
+                })),
+            };
+        },
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) => {
+            return lastPage.meta.hasNextPage ? lastPage.meta.nextOffset : undefined;
+        },
+    });
+};
 export const useCreateTransaction = () => {
     const queryClient = useQueryClient();
     return useMutation({

@@ -35,7 +35,7 @@ export function SummaryCards() {
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">${summary?.todaySpend.toFixed(2)}</div>
+                    <div className="text-2xl font-bold">৳{summary?.todaySpend.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground">
                         Daily overview
                     </p>
@@ -47,7 +47,7 @@ export function SummaryCards() {
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">${summary?.thisMonthSpend.toFixed(2)}</div>
+                    <div className="text-2xl font-bold">৳{summary?.thisMonthSpend.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground flex items-center">
                         <span className="text-primary flex items-center mr-1">
                             <ArrowUpRight className="h-3 w-3 mr-1" />
@@ -63,7 +63,7 @@ export function SummaryCards() {
                     <Wallet className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">${summary?.remainingBudget.toFixed(2)}</div>
+                    <div className="text-2xl font-bold">৳{summary?.remainingBudget.toFixed(2)}</div>
                     <p className="text-xs text-muted-foreground">
                         {summary?.remainingPercentage.toFixed(0)}% left
                     </p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useTransactions } from "@/hooks/use-transactions";
+import { useInfiniteTransactions } from "@/hooks/use-transactions";
 import { Button } from "@/components/atoms/button";
 import { Skeleton } from "@/components/atoms/skeleton";
 import { MoreVertical, Edit, Trash2 } from "lucide-react";
@@ -11,17 +11,49 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu";
-import { useState } from "react";
-import { Transaction } from "@/types/dashboard";
+import { useState, useRef, useEffect } from "react";
+import { Transaction, PaginatedTransactionsResponse } from "@/types/dashboard";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { DeleteTransactionModal } from "./delete-transaction-modal";
 import { Badge } from "@/components/atoms/badge";
 
 export function TransactionsList() {
-    const { data: transactions, isLoading } = useTransactions();
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading
+    } = useInfiniteTransactions();
+
+    const transactions = data?.pages.flatMap((page: PaginatedTransactionsResponse) => page.data) || [];
+
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+    const observerTarget = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+                    fetchNextPage();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const handleEdit = (transaction: Transaction) => {
         setSelectedTransaction(transaction);
@@ -88,7 +120,7 @@ export function TransactionsList() {
                                             {transaction?.type === 'expense' ? '-' : '+'}৳{transaction?.amount.toFixed(2)}
                                         </div>
                                         <div className="col-span-1">
-                                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction?.type === 'expense' ? 'bg-destructive/95 text-destructive' : 'bg-primary/10 text-primary'
+                                            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction?.type === 'expense' ? 'bg-destructive/95 text-white' : 'bg-primary/10 text-primary'
                                                 }`}>
                                                 {typeof transaction?.category === 'string' ? transaction?.category : transaction?.category?.type}
                                             </span>
@@ -117,7 +149,17 @@ export function TransactionsList() {
                                         </div>
                                     </div>
                                 ))}
-                                {(!transactions || transactions.length === 0) && (
+
+                                <div ref={observerTarget} className="h-4 w-full" />
+
+                                {isFetchingNextPage && (
+                                    <div className="py-4 space-y-2">
+                                        <Skeleton className="h-12 w-full" />
+                                        <Skeleton className="h-12 w-full" />
+                                    </div>
+                                )}
+
+                                {(!isLoading && (!transactions || transactions.length === 0)) && (
                                     <div className="text-center py-8 text-muted-foreground">No transactions found.</div>
                                 )}
                             </div>

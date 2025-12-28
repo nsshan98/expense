@@ -42,7 +42,7 @@ export function InsightsPanel() {
                 {insights.map((insight, index) => {
                     let colorClass = "bg-primary/10 border-primary/20 text-primary";
                     let Icon = Info;
-                    let title = insight.title || "Insight";
+                    let title = insight.category?.name || "Insight";
 
                     if (insight.type === "warning") {
                         colorClass = "bg-destructive/10 border-destructive/20 text-destructive";
@@ -62,16 +62,16 @@ export function InsightsPanel() {
                     }
 
                     // Fallback if title is explicitly provided
-                    if (insight.title) title = insight.title;
+                    if (insight.category?.name) title = insight.category.name;
 
                     return (
-                        <div key={insight.id || index} className={`p-4 rounded-lg border space-y-2 ${colorClass}`}>
+                        <div key={index} className={`p-4 rounded-lg border space-y-2 ${colorClass}`}>
                             <div className="flex items-center gap-2 font-medium text-sm">
                                 <Icon className="w-4 h-4" />
                                 <span className="capitalize">{title}</span>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                {insight.text || insight.message}
+                                {insight.text}
                             </p>
                         </div>
                     );

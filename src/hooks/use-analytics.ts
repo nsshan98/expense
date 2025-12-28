@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { axiosClient } from '@/lib/axios-client';
-import { AnalyticsData, DashboardSummary } from '@/types/dashboard';
+import { AnalyticsData, DashboardSummary, DashboardResponse } from '@/types/dashboard';
 import { useTransactions } from './use-transactions';
 import { useBudgets } from './use-budgets';
 
@@ -14,42 +14,26 @@ export const useAnalytics = () => {
     });
 };
 
+export const useDashboard = () => {
+    return useQuery({
+        queryKey: ['dashboard-data'],
+        queryFn: async () => {
+            const { data } = await axiosClient.get<DashboardResponse>('/insights/dashboard');
+            return data;
+        },
+    });
+};
+
 export const useDashboardSummary = () => {
-    const { data: transactions } = useTransactions();
-    const { data: budgets } = useBudgets();
+    const { data: dashboardData, isLoading } = useDashboard();
 
-    // This logic should ideally be on the backend, but implementing here for now
-    const calculateSummary = (): DashboardSummary => {
-        if (!transactions || !budgets) return {
-            todaySpend: 0,
-            thisMonthSpend: 0,
-            thisMonthTrend: 0,
-            remainingBudget: 0,
-            remainingPercentage: 0
-        };
-
-        const today = new Date().toISOString().split('T')[0];
-        const todaySpend = transactions
-            .filter(t => t.date.startsWith(today) && t.type === 'expense')
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        const thisMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-        const thisMonthSpend = transactions
-            .filter(t => t.date.startsWith(thisMonth) && t.type === 'expense')
-            .reduce((sum, t) => sum + t.amount, 0);
-
-        const totalBudget = budgets.reduce((sum, b) => sum + b.amount, 0);
-        const remainingBudget = totalBudget - thisMonthSpend;
-        const remainingPercentage = totalBudget > 0 ? (remainingBudget / totalBudget) * 100 : 0;
-
-        return {
-            todaySpend,
-            thisMonthSpend,
-            thisMonthTrend: 5, // Mock trend
-            remainingBudget,
-            remainingPercentage,
-        };
+    const summary: DashboardSummary = {
+        todaySpend: dashboardData?.fast_stats.todays_spend || 0,
+        thisMonthSpend: dashboardData?.fast_stats.this_month_spend || 0,
+        thisMonthTrend: dashboardData?.fast_stats.trend_percentage || 0,
+        remainingBudget: dashboardData?.fast_stats.total_remaining_budget || 0,
+        remainingPercentage: dashboardData?.fast_stats.remaining_percentage || 0
     };
 
-    return { data: calculateSummary(), isLoading: !transactions || !budgets };
+    return { data: summary, isLoading };
 };

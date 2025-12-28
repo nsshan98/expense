@@ -49,7 +49,7 @@ export function RecentTransactions() {
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className={transaction?.type === 'expense' ? "text-destructive" : "text-primary"}>
-                                        {transaction?.type === 'expense' ? '-' : '+'}${transaction?.amount.toFixed(2)}
+                                        {transaction?.type === 'expense' ? '-' : '+'}৳{transaction?.amount.toFixed(2)}
                                     </span>
                                 </div>
                             </div>

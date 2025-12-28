@@ -1,18 +1,16 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useAnalytics } from "@/hooks/use-analytics";
+import { useDashboard } from "@/hooks/use-analytics";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Skeleton } from "@/components/atoms/skeleton";
 
 export function SpendingTrendChart() {
-    const { data: insights, isLoading } = useAnalytics();
+    const { data: dashboardData, isLoading } = useDashboard();
 
-    // Mock data if insights is empty or loading for visual structure
-    const data = insights?.spendingOverTime || [
-        { date: '2023-01-01', amount: 0 },
-        { date: '2023-01-02', amount: 0 },
-    ];
+    // Fallback data
+    const data = dashboardData?.trend_analysis.chart_data || [];
+    const trendingCategories = dashboardData?.trend_analysis.trending_categories || [];
 
     if (isLoading) {
         return (
@@ -35,8 +33,11 @@ export function SpendingTrendChart() {
                     <p className="text-sm text-muted-foreground">Comparison of actual vs. forecasted spending.</p>
                 </div>
                 <div className="flex gap-2">
-                    <div className="px-2 py-1 bg-destructive/10 text-destructive text-xs rounded-md font-medium">Food trending +12%</div>
-                    <div className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium">Shopping +8%</div>
+                    {trendingCategories.map((cat, idx) => (
+                        <div key={idx} className={`capitalize px-2 py-1 text-xs rounded-md font-medium ${idx % 2 === 0 ? 'bg-destructive/10 text-destructive' : 'bg-primary/10 text-primary'}`}>
+                            {cat.name} {cat.percentage > 0 ? '+' : ''}{cat.percentage.toFixed(0)}%
+                        </div>
+                    ))}
                 </div>
             </CardHeader>
             <CardContent>
@@ -59,7 +60,10 @@ export function SpendingTrendChart() {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                // Date is already formatted in payload (e.g. "Nov 29") or fullDate
+                                // payload `date` is "Nov 29", `fullDate` is "2025-11-29"
+                                // We can just use `date` as is or format `fullDate`
+                                tickFormatter={(value) => value}
                             />
                             <YAxis
                                 stroke="#888888"

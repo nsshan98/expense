@@ -1,12 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
-import { useBudgets } from "@/hooks/use-budgets";
+import { useCategoryBudgets } from "@/hooks/use-dashboard";
 import { Progress } from "@/components/atoms/progress";
 import { Skeleton } from "@/components/atoms/skeleton";
 
 export function CategoryBudgetList() {
-    const { data: budgets, isLoading } = useBudgets();
+    const { categoryBudgetsQuery } = useCategoryBudgets();
+    const { data: budgets, isLoading } = categoryBudgetsQuery;
 
     if (isLoading) {
         return (

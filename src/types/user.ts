@@ -5,4 +5,6 @@ export interface User {
   role: string
   plan_id: string | null
   created_at: string
+  hasGeminiKey?: boolean
+  geminiApiKeyMasked?: string
 }
