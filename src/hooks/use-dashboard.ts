@@ -40,17 +40,22 @@ export const useCategoryBudgets = () => {
 
     // Map to include derived fields used by UI
     const budgets = dashboardData?.budget_status?.map((b: any) => {
-        const amount = b.amount || 0;
-        const spent = b.spent_this_month || 0;
-        const percentage = amount > 0 ? (spent / amount) * 100 : 0;
-        const remaining = Math.max(0, amount - spent);
+        // Map new payload fields to component expected fields
+        const amount = b.limit || 0;
+        const spent = b.spent || 0;
+        // Percentage from payload or calculate
+        const percentage = b.used_percentage !== undefined ? b.used_percentage : (amount > 0 ? (spent / amount) * 100 : 0);
+        // Remaining from payload or calculate
+        const remaining = b.remaining !== undefined ? b.remaining : Math.max(0, amount - spent);
+
+        // Calculate over amount if needed (e.g. if spent > limit)
         const over = Math.max(0, spent - amount);
 
         return {
-            id: b.id,
+            id: b.name || Math.random().toString(36).substr(2, 9), // Use name as ID or generate random if missing
             category: {
-                id: b.category?.id || 'unknown',
-                name: typeof b.category === 'string' ? b.category : b.category?.name || 'Unknown',
+                id: 'unknown', // No ID in this payload
+                name: b.name || 'Unknown',
                 type: 'EXPENSE'
             },
             amount: amount,
@@ -67,8 +72,18 @@ export const useCategoryBudgets = () => {
 export const useInsights = () => {
     const { data: dashboardData, isLoading } = useDashboard();
 
-    // Convert single smart_insight to array for compatibility with component
-    const insights = dashboardData?.smart_insight ? [dashboardData.smart_insight] : [];
+    // Handle both single object and array response for smart_insight
+    // Check various keys: smart_insights (plural), smart_insight (singular, legacy), or potential camelCase
+    let rawInsights = dashboardData?.smart_insights || dashboardData?.smart_insight;
+
+    // Fallback for camelCase if backend sends that (not in type definition but useful for runtime safety)
+    if (!rawInsights && (dashboardData as any)?.smartInsights) {
+        rawInsights = (dashboardData as any).smartInsights;
+    }
+
+    const insights = rawInsights
+        ? (Array.isArray(rawInsights) ? rawInsights : [rawInsights])
+        : [];
 
     return { insightsQuery: { data: insights, isLoading } };
 };

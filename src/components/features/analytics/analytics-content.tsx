@@ -5,12 +5,20 @@ import { SpendingByCategoryChart } from "@/components/features/analytics/spendin
 import { RecentTransactions } from "@/components/features/dashboard/home/recent-transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
 import { useDashboardSummary } from "@/hooks/use-analytics";
+import { TrendsOverview } from "@/components/features/analytics/trends/trends-overview";
+import { BreakdownAnalytics } from "@/components/features/analytics/breakdown/breakdown-analytics";
 
 export function AnalyticsContent() {
     const { data: summary } = useDashboardSummary();
 
     return (
-        <>
+        <div className="space-y-8">
+            <TrendsOverview />
+
+            <div className="border-t pt-8">
+                <BreakdownAnalytics />
+            </div>
+
             <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                     <CardHeader className="pb-2">
@@ -52,6 +60,6 @@ export function AnalyticsContent() {
             </div>
 
             <RecentTransactions />
-        </>
+        </div>
     );
 }

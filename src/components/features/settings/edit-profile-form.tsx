@@ -15,8 +15,10 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/atoms/form";
 import { Input } from "@/components/atoms/input";
+import { Checkbox } from "@/components/atoms/checkbox";
 import { EditProfileSchema, EditProfileFormValues } from "@/zod/user-schema";
 import { updateSessionUser } from "@/lib/session";
 import { useUpdateUserProfile } from "@/hooks/use-user-profile";
@@ -25,9 +27,20 @@ interface EditProfileFormProps {
     initialData: {
         name: string;
         email: string;
+        weekendDays?: number[];
     };
     userId: string;
 }
+
+const DAYS_OF_WEEK = [
+    { id: 0, label: "Sunday" },
+    { id: 1, label: "Monday" },
+    { id: 2, label: "Tuesday" },
+    { id: 3, label: "Wednesday" },
+    { id: 4, label: "Thursday" },
+    { id: 5, label: "Friday" },
+    { id: 6, label: "Saturday" },
+];
 
 export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
     const router = useRouter();
@@ -39,12 +52,21 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
         defaultValues: {
             name: initialData.name,
             email: initialData.email,
+            weekendDays: initialData.weekendDays || [],
         },
     });
 
     async function onSubmit(data: EditProfileFormValues) {
-        // Check if data is same as initial
-        if (data.name === initialData.name && data.email === initialData.email) {
+        // Simple dirty check (deep comparison would be better but this is fine for now)
+        const isNameChanged = data.name !== initialData.name;
+        const isEmailChanged = data.email !== initialData.email;
+
+        // Sort arrays to compare
+        const currentWeekendDays = [...(data.weekendDays || [])].sort().join(',');
+        const initialWeekendDays = [...(initialData.weekendDays || [])].sort().join(',');
+        const isWeekendChanged = currentWeekendDays !== initialWeekendDays;
+
+        if (!isNameChanged && !isEmailChanged && !isWeekendChanged) {
             toast.info("No changes detected");
             return;
         }
@@ -117,6 +139,57 @@ export function EditProfileForm({ initialData, userId }: EditProfileFormProps) {
                                             />
                                         </div>
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="weekendDays"
+                            render={() => (
+                                <FormItem>
+                                    <div className="mb-4">
+                                        <FormLabel className="text-base">Weekend Preferences</FormLabel>
+                                        <FormDescription>
+                                            Select the days you consider as your weekend.
+                                        </FormDescription>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {DAYS_OF_WEEK.map((item) => (
+                                            <FormField
+                                                key={item.id}
+                                                control={form.control}
+                                                name="weekendDays"
+                                                render={({ field }) => {
+                                                    return (
+                                                        <FormItem
+                                                            key={item.id}
+                                                            className="flex flex-row items-start space-x-3 space-y-0"
+                                                        >
+                                                            <FormControl>
+                                                                <Checkbox
+                                                                    checked={field.value?.includes(item.id)}
+                                                                    onCheckedChange={(checked) => {
+                                                                        return checked
+                                                                            ? field.onChange([...(field.value || []), item.id])
+                                                                            : field.onChange(
+                                                                                field.value?.filter(
+                                                                                    (value) => value !== item.id
+                                                                                )
+                                                                            )
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal cursor-pointer">
+                                                                {item.label}
+                                                            </FormLabel>
+                                                        </FormItem>
+                                                    )
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
                                     <FormMessage />
                                 </FormItem>
                             )}

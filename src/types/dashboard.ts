@@ -165,5 +165,6 @@ export interface DashboardResponse {
     top_spend_categories: TopSpendCategory[];
     budget_status: Budget[]; // Reusing Budget interface if compatible, otherwise define new
     forecast: Forecast;
-    smart_insight: SmartInsight;
+    smart_insight: SmartInsight | SmartInsight[];
+    smart_insights?: SmartInsight[]; // Handle potential plural naming
 }

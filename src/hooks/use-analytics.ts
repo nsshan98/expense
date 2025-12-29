@@ -24,6 +24,7 @@ export const useDashboard = () => {
     });
 };
 
+
 export const useDashboardSummary = () => {
     const { data: dashboardData, isLoading } = useDashboard();
 
@@ -36,4 +37,32 @@ export const useDashboardSummary = () => {
     };
 
     return { data: summary, isLoading };
+};
+
+export const useAnalyticsTrends = () => {
+    return useQuery({
+        queryKey: ['analytics-trends'],
+        queryFn: async () => {
+            const { data } = await axiosClient.get<import('@/types/analytics').AnalyticsTrendsResponse>('/analytics/trends');
+            return data;
+        },
+    });
+};
+
+export const useBreakdownAnalytics = (startDate?: string, endDate?: string) => {
+    return useQuery({
+        queryKey: ['breakdown-analytics', startDate, endDate],
+        queryFn: async () => {
+            const params = new URLSearchParams();
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            const { data } = await axiosClient.get<import('@/types/breakdown').BreakdownAnalyticsResponse>(
+                `/analytics/breakdown?${params.toString()}`
+            );
+            return data;
+        },
+        // Only fetch when both dates are provided AND they are different
+        enabled: !!startDate && !!endDate && startDate !== endDate,
+    });
 };

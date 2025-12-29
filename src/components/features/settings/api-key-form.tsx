@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Key, Check, X } from "lucide-react";
+import { Loader2, Key, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import {
     Form,
@@ -20,6 +20,17 @@ import { ApiKeySchema, ApiKeyFormValues } from "@/zod/api-key-schema";
 import { useMutation } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/axios-client";
 import { useRouter } from "next/navigation";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/atoms/alert-dialog";
 
 interface ApiKeyFormProps {
     userId: string;
@@ -30,6 +41,7 @@ interface ApiKeyFormProps {
 export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProps) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const form = useForm<ApiKeyFormValues>({
         resolver: zodResolver(ApiKeySchema),
@@ -56,8 +68,31 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
         },
     });
 
+    const removeApiKeyMutation = useMutation({
+        mutationFn: async () => {
+            const { data: response } = await axiosClient.patch(`/users/${userId}`, {
+                geminiApiKey: null
+            });
+            return response;
+        },
+        onSuccess: () => {
+            toast.success("API Key removed successfully");
+            setIsDeleting(false);
+            router.refresh();
+        },
+        onError: (error: any) => {
+            console.error("Failed to remove API key:", error);
+            const message = error?.response?.data?.message || "Failed to remove API key";
+            toast.error(message);
+        },
+    });
+
     async function onSubmit(data: ApiKeyFormValues) {
         await updateApiKeyMutation.mutateAsync(data);
+    }
+
+    async function onRemove() {
+        await removeApiKeyMutation.mutateAsync();
     }
 
     return (
@@ -87,12 +122,53 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
                         </div>
                     </div>
                 </div>
-                <Button
-                    variant={isEditing ? "ghost" : "outline"}
-                    onClick={() => setIsEditing(!isEditing)}
-                >
-                    {isEditing ? "Cancel" : (hasKey ? "Update Key" : "Add Key")}
-                </Button>
+                <div className="flex gap-2">
+                    {hasKey && (
+                        <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm" className="h-9">
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Remove
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently remove your Gemini API key from our system.
+                                        You will need to provide a new key to use AI features.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel disabled={removeApiKeyMutation.isPending}>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onRemove();
+                                        }}
+                                        disabled={removeApiKeyMutation.isPending}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                        {removeApiKeyMutation.isPending ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Removing...
+                                            </>
+                                        ) : (
+                                            "Remove Key"
+                                        )}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
+                    <Button
+                        variant={isEditing ? "ghost" : "outline"}
+                        onClick={() => setIsEditing(!isEditing)}
+                    >
+                        {isEditing ? "Cancel" : (hasKey ? "Update Key" : "Add Key")}
+                    </Button>
+                </div>
             </div>
 
             {isEditing && (

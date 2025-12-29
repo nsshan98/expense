@@ -3,6 +3,7 @@ import { z } from "zod";
 export const EditProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
+    weekendDays: z.array(z.number()).optional(),
 });
 
 export type EditProfileFormValues = z.infer<typeof EditProfileSchema>;

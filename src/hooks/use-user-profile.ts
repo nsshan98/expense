@@ -8,6 +8,7 @@ export const useUpdateUserProfile = () => {
             const { data: response } = await axiosClient.patch(`/users/${userId}`, {
                 name: data.name,
                 email: data.email,
+                weekendDays: data.weekendDays,
             });
             return response;
         },

@@ -71,7 +71,8 @@ export default async function SettingsPage() {
                                     <EditProfileForm
                                         initialData={{
                                             name: userData.name || "",
-                                            email: userData.email || ""
+                                            email: userData.email || "",
+                                            weekendDays: userData.weekendDays || []
                                         }}
                                         userId={session.user.id}
                                     />
