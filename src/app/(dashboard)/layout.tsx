@@ -8,6 +8,7 @@ import { Baumans, Plus_Jakarta_Sans } from "next/font/google";
 import { Metadata } from "next";
 import { getSession } from "@/lib/session";
 import { getCurrentUser } from "@/services/user";
+import { CurrencyProvider } from "@/contexts/currency-context";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -21,8 +22,8 @@ const baumans = Baumans({
 });
 
 export const metadata: Metadata = {
-  title: "Protocol Admin Panel",
-  description: "Protocol Admin Panel",
+  title: "Expense Tracker",
+  description: "Expense Tracker",
 };
 
 export default async function AdminPanelLayout({
@@ -40,13 +41,17 @@ export default async function AdminPanelLayout({
     avatar: "/avatars/shadcn.jpg"
   } : (session?.user ? {
     name: session.user.name,
-    email: session.user.email || "user@example.com", // Fallback if old session cookie lacks email
+    email: session.user.email || "user@example.com",
     avatar: "/avatars/shadcn.jpg"
   } : {
     name: "User",
     email: "user@example.com",
     avatar: "/avatars/shadcn.jpg"
   });
+
+  // Get currency info from API user or default to BDT
+  const currencySymbol = apiUser?.currencySymbol || "৳";
+  const currencyCode = apiUser?.currency || "BDT";
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -59,15 +64,17 @@ export default async function AdminPanelLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <DashboardSidebar user={user} />
-            <SidebarInset>
-              <DashboardHeader />
+          <CurrencyProvider currencySymbol={currencySymbol} currencyCode={currencyCode}>
+            <SidebarProvider>
+              <DashboardSidebar user={user} />
+              <SidebarInset>
+                <DashboardHeader />
 
-              {/* Page content */}
-              <main className="flex-1 p-4">{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
+                {/* Page content */}
+                <main className="flex-1 p-4">{children}</main>
+              </SidebarInset>
+            </SidebarProvider>
+          </CurrencyProvider>
         </ThemeProvider>
       </body>
     </html>

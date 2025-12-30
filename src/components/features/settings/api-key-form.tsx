@@ -97,14 +97,14 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                 <div className="flex items-center space-x-4">
                     <div className="p-2 bg-primary/10 rounded-full">
                         <Key className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                         <p className="font-medium">Gemini API Key</p>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
                             {hasKey ? (
                                 <>
                                     <span className="text-green-600 flex items-center gap-1">
@@ -122,11 +122,11 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full md:w-auto">
                     {hasKey && (
                         <AlertDialog open={isDeleting} onOpenChange={setIsDeleting}>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" className="h-9">
+                                <Button variant="destructive" size="sm" className="h-9 flex-1 md:flex-none">
                                     <Trash2 className="h-4 w-4 mr-2" />
                                     Remove
                                 </Button>
@@ -165,6 +165,7 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
                     <Button
                         variant={isEditing ? "ghost" : "outline"}
                         onClick={() => setIsEditing(!isEditing)}
+                        className="flex-1 md:flex-none"
                     >
                         {isEditing ? "Cancel" : (hasKey ? "Update Key" : "Add Key")}
                     </Button>

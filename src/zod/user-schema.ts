@@ -1,9 +1,13 @@
 import { z } from "zod";
+import { CURRENCY_SYMBOLS } from "@/lib/currencies";
+
+const currencyCodes = Object.keys(CURRENCY_SYMBOLS);
 
 export const EditProfileSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
     weekendDays: z.array(z.number()).optional(),
+    currency: z.enum(currencyCodes as [string, ...string[]]).optional(),
 });
 
 export type EditProfileFormValues = z.infer<typeof EditProfileSchema>;

@@ -72,7 +72,8 @@ export default async function SettingsPage() {
                                         initialData={{
                                             name: userData.name || "",
                                             email: userData.email || "",
-                                            weekendDays: userData.weekendDays || []
+                                            weekendDays: userData.weekendDays || [],
+                                            currency: userData.currency || "BDT"
                                         }}
                                         userId={session.user.id}
                                     />

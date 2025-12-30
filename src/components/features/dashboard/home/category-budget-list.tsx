@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { useCategoryBudgets } from "@/hooks/use-dashboard";
 import { Progress } from "@/components/atoms/progress";
 import { Skeleton } from "@/components/atoms/skeleton";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function CategoryBudgetList() {
     const { categoryBudgetsQuery } = useCategoryBudgets();
     const { data: budgets, isLoading } = categoryBudgetsQuery;
+    const { symbol } = useCurrency();
 
     if (isLoading) {
         return (
@@ -43,12 +45,12 @@ export function CategoryBudgetList() {
                         <div key={budget.id} className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="font-medium capitalize">{budget.category.name}</span>
-                                <span className="text-muted-foreground">৳{budget.spent_this_month} / ৳{budget.amount}</span>
+                                <span className="text-muted-foreground">{symbol}{budget.spent_this_month} / {symbol}{budget.amount}</span>
                             </div>
                             <Progress value={budget.percentage} className="h-2" />
                             <div className="flex justify-between text-xs text-muted-foreground">
                                 <span>{budget.percentage.toFixed(0)}% Spent</span>
-                                <span>৳{budget.remaining ? budget.remaining : budget.over} {budget.remaining ? "Remaining" : "Over"}</span>
+                                <span>{symbol}{budget.remaining ? budget.remaining : budget.over} {budget.remaining ? "Remaining" : "Over"}</span>
                             </div>
                         </div>
                     ))}

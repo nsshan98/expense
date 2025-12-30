@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { format, parse, isValid } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { MonthPicker } from "@/components/atoms/month-picker";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface EditBudgetModalProps {
     isOpen: boolean;
@@ -35,6 +36,7 @@ interface EditBudgetModalProps {
 export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProps) {
     const updateBudget = useUpdateBudget();
     const updateCategory = useUpdateCategory();
+    const { symbol } = useCurrency();
 
     const form = useForm<EditBudgetFormValues>({
         resolver: zodResolver(editBudgetSchema),
@@ -167,7 +169,7 @@ export function EditBudgetModal({ isOpen, onClose, budget }: EditBudgetModalProp
                                         <FormLabel>Budget Amount</FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{symbol}</span>
                                                 <Input
                                                     type="number"
                                                     className="pl-6"

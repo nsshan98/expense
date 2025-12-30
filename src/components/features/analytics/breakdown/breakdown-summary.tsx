@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/atoms/card";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface BreakdownSummaryProps {
     totalSpend: number;
@@ -16,6 +17,7 @@ export function BreakdownSummary({
     dailyAverage,
     monthOverMonthChange
 }: BreakdownSummaryProps) {
+    const { formatAmount } = useCurrency();
     const isPositive = monthOverMonthChange !== undefined && monthOverMonthChange > 0;
     const isNegative = monthOverMonthChange !== undefined && monthOverMonthChange < 0;
 
@@ -30,7 +32,7 @@ export function BreakdownSummary({
                 {/* Main Amount */}
                 <div className="mb-3">
                     <h2 className="text-5xl font-bold tracking-tight">
-                        ৳{totalSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatAmount(totalSpend)}
                     </h2>
                 </div>
 
@@ -60,7 +62,7 @@ export function BreakdownSummary({
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
                             Daily Avg
                         </p>
-                        <p className="text-2xl font-bold">৳{dailyAverage.toFixed(2)}</p>
+                        <p className="text-2xl font-bold">{formatAmount(dailyAverage)}</p>
                     </div>
                 </div>
             </CardContent>

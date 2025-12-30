@@ -14,14 +14,25 @@ export interface MomAnalysis {
 export interface WeekdayWeekendAnalysis {
     weekday_avg: number;
     weekend_avg: number;
+    weekend_days: number[];
+    weekday_days: number[];
     is_weekend_higher: boolean;
     formatted_message: string;
+}
+
+export interface MonthlySpending {
+    month: string;
+    fullMonth: string;
+    amount: number;
+    is_peak: boolean;
+    trend_percentage: number;
 }
 
 export interface AnalyticsTrendsSuccessResponse {
     status: 'success';
     mom_analysis: MomAnalysis;
     weekend_vs_weekday?: WeekdayWeekendAnalysis;
+    seasonality?: MonthlySpending[];
 }
 
 export interface AnalyticsTrendsMissingConfigResponse {

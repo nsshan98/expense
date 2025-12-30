@@ -9,6 +9,7 @@ export const useUpdateUserProfile = () => {
                 name: data.name,
                 email: data.email,
                 weekendDays: data.weekendDays,
+                currency: data.currency,
             });
             return response;
         },

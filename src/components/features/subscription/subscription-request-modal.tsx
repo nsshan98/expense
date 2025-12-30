@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { axiosClient } from "@/lib/axios-client";
 import { subscriptionRequestSchema, SubscriptionRequestFormValues } from "@/zod/subscription-schema";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface SubscriptionRequestModalProps {
     isOpen: boolean;
@@ -29,6 +30,7 @@ export function SubscriptionRequestModal({
     initialBillingCycle = "monthly"
 }: SubscriptionRequestModalProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { symbol } = useCurrency();
 
     const form = useForm<SubscriptionRequestFormValues>({
         resolver: zodResolver(subscriptionRequestSchema),
@@ -61,7 +63,7 @@ export function SubscriptionRequestModal({
     if (!plan) return null;
 
     const price = watchDuration === "monthly" ? plan.price_monthly : plan.price_yearly;
-    const priceDisplay = price ? `৳${price}${watchDuration === "yearly" ? "/year" : "/mo"}` : "Free";
+    const priceDisplay = price ? `${symbol}${price}${watchDuration === "yearly" ? "/year" : "/mo"}` : "Free";
 
     const onSubmit = async (data: SubscriptionRequestFormValues) => {
         setIsSubmitting(true);

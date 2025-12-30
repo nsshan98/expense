@@ -26,10 +26,12 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { MonthPicker } from "@/components/atoms/month-picker";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function AddCategoryForm() {
     const createCategory = useCreateCategory();
     const createBudget = useCreateBudget();
+    const { symbol } = useCurrency();
 
     const form = useForm<AddCategoryFormValues>({
         resolver: zodResolver(addCategoryFormSchema),
@@ -128,7 +130,7 @@ export function AddCategoryForm() {
                                     <FormLabel>Monthly Budget (Optional)</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{symbol}</span>
                                             <Input
                                                 type="number"
                                                 placeholder="0.00"

@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useCreateBudget } from "@/hooks/use-budgets";
 import { axiosClient } from "@/lib/axios-client";
 import { Budget } from "@/types/dashboard";
+import { useCurrency } from "@/contexts/currency-context";
 
 const budgetItemSchema = z.object({
     categoryName: z.string().min(1, "Category name is required"),
@@ -48,6 +49,7 @@ type BulkCreateBudgetValues = z.infer<typeof bulkCreateBudgetSchema>;
 
 export function BudgetBulkCreateForm() {
     const createBudget = useCreateBudget();
+    const { symbol } = useCurrency();
     const [isFetching, setIsFetching] = useState(false);
     const [fetchMonth, setFetchMonth] = useState<Date | undefined>(undefined);
     const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
@@ -232,7 +234,7 @@ export function BudgetBulkCreateForm() {
                                                     <FormLabel className="md:hidden">Amount</FormLabel>
                                                     <FormControl>
                                                         <div className="relative">
-                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">৳</span>
+                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{symbol}</span>
                                                             <Input
                                                                 type="number"
                                                                 className="pl-8"

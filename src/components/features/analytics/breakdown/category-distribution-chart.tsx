@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
 import { CategoryBreakdown } from "@/types/breakdown";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CategoryDistributionChartProps {
     categories: CategoryBreakdown[];
@@ -10,6 +11,8 @@ interface CategoryDistributionChartProps {
 }
 
 export function CategoryDistributionChart({ categories, totalSpend }: CategoryDistributionChartProps) {
+    const { formatAmount } = useCurrency();
+
     // Generate colors for categories
     const COLORS = [
         '#FF6B35', // Orange for food
@@ -44,7 +47,7 @@ export function CategoryDistributionChart({ categories, totalSpend }: CategoryDi
                 <div className="bg-background border rounded-lg shadow-lg p-3">
                     <p className="font-semibold capitalize mb-1">{data.name}</p>
                     <p className="text-sm text-muted-foreground">
-                        ৳{data.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatAmount(data.value)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                         {data.count} {data.count === 1 ? 'transaction' : 'transactions'}
@@ -103,7 +106,7 @@ export function CategoryDistributionChart({ categories, totalSpend }: CategoryDi
                                     dominantBaseline="middle"
                                     className="text-lg font-bold fill-foreground"
                                 >
-                                    ৳{totalSpend.toLocaleString()}
+                                    {formatAmount(totalSpend)}
                                 </text>
                             </PieChart>
                         </ResponsiveContainer>
@@ -129,7 +132,7 @@ export function CategoryDistributionChart({ categories, totalSpend }: CategoryDi
                                     <div className="text-right shrink-0">
                                         <p className="font-semibold text-sm">{item.percentage.toFixed(1)}%</p>
                                         <p className="text-xs text-muted-foreground">
-                                            ৳{item.value.toFixed(0)}
+                                            {formatAmount(item.value)}
                                         </p>
                                     </div>
                                 </div>

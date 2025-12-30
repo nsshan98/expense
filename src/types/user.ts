@@ -8,4 +8,6 @@ export interface User {
   hasGeminiKey?: boolean
   geminiApiKeyMasked?: string
   weekendDays?: number[]
+  currency?: string
+  currencySymbol?: string
 }

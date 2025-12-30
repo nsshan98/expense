@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { CategoryBreakdown } from "@/types/breakdown";
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface CategoryBreakdownListProps {
     categories: CategoryBreakdown[];
@@ -11,6 +12,7 @@ interface CategoryBreakdownListProps {
 }
 
 export function CategoryBreakdownList({ categories, totalSpend }: CategoryBreakdownListProps) {
+    const { formatAmount } = useCurrency();
     const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
     const [sortBy, setSortBy] = useState<'amount' | 'name'>('amount');
 
@@ -90,7 +92,7 @@ export function CategoryBreakdownList({ categories, totalSpend }: CategoryBreakd
                                 <div className="flex-1 text-left">
                                     <div className="flex items-center justify-between mb-1">
                                         <h4 className="font-semibold capitalize">{category.name}</h4>
-                                        <span className="text-lg font-bold">৳{category.total.toFixed(2)}</span>
+                                        <span className="text-lg font-bold">{formatAmount(category.total)}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <span>{category.count} transactions</span>
@@ -135,7 +137,7 @@ export function CategoryBreakdownList({ categories, totalSpend }: CategoryBreakd
                                                         <p className="text-xs text-muted-foreground">{merchant.count} {merchant.count === 1 ? 'transaction' : 'transactions'}</p>
                                                     </div>
                                                 </div>
-                                                <span className="font-semibold">৳{merchant.amount.toFixed(2)}</span>
+                                                <span className="font-semibold">{formatAmount(merchant.amount)}</span>
                                             </div>
                                         ))}
                                     </div>

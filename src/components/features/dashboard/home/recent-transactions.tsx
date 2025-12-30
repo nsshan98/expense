@@ -5,9 +5,11 @@ import { useTransactions } from "@/hooks/use-transactions";
 import { MoreVertical } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Skeleton } from "@/components/atoms/skeleton";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function RecentTransactions() {
     const { data: transactions, isLoading } = useTransactions();
+    const { symbol } = useCurrency();
 
     if (isLoading) {
         return (
@@ -49,7 +51,7 @@ export function RecentTransactions() {
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <span className={transaction?.type === 'expense' ? "text-destructive" : "text-primary"}>
-                                        {transaction?.type === 'expense' ? '-' : '+'}৳{transaction?.amount.toFixed(2)}
+                                        {transaction?.type === 'expense' ? '-' : '+'}{symbol}{transaction?.amount.toFixed(2)}
                                     </span>
                                 </div>
                             </div>

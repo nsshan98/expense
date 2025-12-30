@@ -7,6 +7,7 @@ import {
   Receipt,
   Wallet,
   CreditCard,
+  TrendingUp,
 } from "lucide-react";
 
 import {
@@ -41,6 +42,11 @@ const navMainData = [
         title: "Analytics",
         url: "/analytics",
         icon: ChartColumnBig,
+      },
+      {
+        title: "Projection",
+        url: "/projection",
+        icon: TrendingUp,
       },
       {
         title: "Budgets",

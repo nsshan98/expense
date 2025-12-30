@@ -14,6 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/atoms/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface BudgetListProps {
     budgets: Budget[] | undefined;
@@ -36,6 +37,7 @@ export function BudgetList({
     onEdit,
     isUpdating
 }: BudgetListProps) {
+    const { symbol, formatAmount } = useCurrency();
 
     const isDirty = (id: string, originalAmount: number | string) => {
         const localAmount = parseFloat(localBudgets[id]);
@@ -78,15 +80,15 @@ export function BudgetList({
                                         <span className="capitalize font-semibold text-lg">{budget.category.name}</span>
                                         <div className="text-sm text-muted-foreground flex gap-2">
                                             <span className={cn(isOverBudget ? "text-destructive font-bold" : "text-primary")}>
-                                                ৳{Number(budget?.spent_this_month || 0).toFixed(2)} spent
+                                                {formatAmount(Number(budget?.spent_this_month || 0))} spent
                                             </span>
                                             <span>/</span>
-                                            <span>৳{Number(budget?.amount || 0).toFixed(2)} limit</span>
+                                            <span>{formatAmount(Number(budget?.amount || 0))} limit</span>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="relative w-32">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">৳</span>
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">{symbol}</span>
                                             <Input
                                                 value={localBudgets[budget.id] || ''}
                                                 onChange={(e) => onAmountChange(budget.id, e.target.value)}
@@ -142,9 +144,9 @@ export function BudgetList({
                                     <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>{Number(budget.percentage || 0).toFixed(0)}% used</span>
                                         {isOverBudget ? (
-                                            <span className="text-destructive font-medium">Over by ৳{Number(budget.over).toFixed(2)}</span>
+                                            <span className="text-destructive font-medium">Over by {formatAmount(Number(budget.over))}</span>
                                         ) : (
-                                            <span>৳{Number(budget.remaining || 0).toFixed(2)} remaining</span>
+                                            <span>{formatAmount(Number(budget.remaining || 0))} remaining</span>
                                         )}
                                     </div>
                                     <Progress
@@ -155,7 +157,7 @@ export function BudgetList({
                                     {isOverBudget && (
                                         <div className="flex items-center gap-1 text-xs text-destructive mt-1">
                                             <AlertTriangle className="h-3 w-3" />
-                                            <span>You have exceeded the budget by ৳{Number(budget.over || 0).toFixed(2)}</span>
+                                            <span>You have exceeded the budget by {formatAmount(Number(budget.over || 0))}</span>
                                         </div>
                                     )}
                                 </div>

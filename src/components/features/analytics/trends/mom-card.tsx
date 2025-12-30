@@ -1,7 +1,10 @@
+"use client";
+
 import { Badge } from "@/components/atoms/badge";
 import { Card, CardContent } from "@/components/atoms/card";
 import { cn } from "@/lib/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface MomCardProps {
     title: string;
@@ -57,6 +60,7 @@ export function MomCard({
     percentageChange,
     periodPreviousLabel,
 }: MomCardProps) {
+    const { formatAmount } = useCurrency();
     const isPositive = percentageChange > 0;
     const isZero = percentageChange === 0;
     const formattedDateRange = formatDateRange(dateRange);
@@ -90,7 +94,7 @@ export function MomCard({
 
                 <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-3xl font-bold">
-                        ৳{currentTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatAmount(currentTotal)}
                     </span>
                     <span className="text-xs text-muted-foreground font-medium">Current Total</span>
                 </div>
@@ -98,7 +102,7 @@ export function MomCard({
                 <div className="flex justify-between items-center text-sm pt-4 border-t border-dashed">
                     <span className="text-muted-foreground">{periodPreviousLabel}</span>
                     <span className="font-semibold">
-                        ৳{previousTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatAmount(previousTotal)}
                     </span>
                 </div>
             </CardContent>

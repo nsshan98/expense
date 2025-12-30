@@ -3,10 +3,11 @@
 import { useAnalyticsTrends } from "@/hooks/use-analytics";
 import { MomCard } from "./mom-card";
 import { WeekendAnalysis } from "./weekend-analysis";
-import { CalendarDays, Inbox, AlertCircle } from "lucide-react";
-import { Button } from "@/components/atoms/button"; // Assuming available
+import { CalendarDays, Inbox, AlertCircle, Settings } from "lucide-react";
+import { Button } from "@/components/atoms/button";
 import Link from "next/link";
-import { Skeleton } from "@/components/atoms/skeleton"; // Assuming available
+import { Skeleton } from "@/components/atoms/skeleton";
+import { Card, CardContent } from "@/components/atoms/card";
 
 // Helper function to format previous period label like "Previous Total (Nov 1)"
 function formatPreviousPeriodLabel(periodPrevious: string): string {
@@ -60,21 +61,94 @@ export function TrendsOverview() {
                     </p>
                 </div>
 
-                <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-4 flex gap-3 items-start">
-                    <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
-                    <div>
-                        <h5 className="font-semibold mb-1 text-amber-800">Configuration Required</h5>
-                        <div className="text-amber-700 text-sm">
-                            {data.message || "Please complete your setup to view analytics."}
-                            <div className="mt-4">
+                <Card className="border-amber-200 bg-amber-50/50">
+                    <CardContent className="p-6">
+                        <div className="flex gap-4 items-start">
+                            <div className="p-3 bg-amber-100 rounded-full shrink-0">
+                                <Settings className="h-6 w-6 text-amber-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-amber-900 mb-2">
+                                    Setup Required
+                                </h3>
+                                <p className="text-amber-800 mb-4">
+                                    {data.message || "Please complete your setup to view analytics."}
+                                </p>
+
+                                {data.setup_required && data.setup_required.length > 0 && (
+                                    <div className="mb-4 p-3 bg-white/60 rounded-lg border border-amber-200">
+                                        <p className="text-sm font-medium text-amber-900 mb-2">
+                                            Missing Configuration:
+                                        </p>
+                                        <ul className="space-y-1">
+                                            {data.setup_required.map((item) => (
+                                                <li key={item} className="text-sm text-amber-800 flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                    {item === 'weekend_days'
+                                                        ? 'Weekend Days Preference'
+                                                        : item.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
                                 <Link href="/settings">
-                                    <Button variant="outline" className="bg-white border-amber-300 text-amber-900 hover:bg-amber-50 h-9 px-4 py-2">
-                                        Go to Settings
+                                    <Button
+                                        variant="default"
+                                        className="bg-amber-600 hover:bg-amber-700 text-white"
+                                    >
+                                        <Settings className="h-4 w-4 mr-2" />
+                                        Configure Settings
                                     </Button>
                                 </Link>
                             </div>
                         </div>
+                    </CardContent>
+                </Card>
+
+                {/* Show placeholder cards to give context of what's coming */}
+                <div className="space-y-4 opacity-50 pointer-events-none">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <CalendarDays className="h-5 w-5 text-sky-500" />
+                        <h3>Month-over-Month Analysis</h3>
                     </div>
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <Card>
+                            <CardContent className="p-6">
+                                <div className="space-y-4">
+                                    <Skeleton className="h-6 w-32" />
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-4 w-24" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardContent className="p-6">
+                                <div className="space-y-4">
+                                    <Skeleton className="h-6 w-32" />
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-4 w-24" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+
+                <div className="space-y-4 opacity-50 pointer-events-none">
+                    <div className="flex items-center gap-2 text-lg font-semibold">
+                        <Inbox className="h-5 w-5 text-sky-500" />
+                        <h3>Weekend vs. Weekday Spending</h3>
+                    </div>
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <Skeleton className="h-24 w-full" />
+                                <Skeleton className="h-24 w-full" />
+                                <Skeleton className="h-24 w-full" />
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         );

@@ -1,12 +1,12 @@
 "use client";
 
 import { SpendingTrendChart } from "@/components/features/dashboard/home/spending-trend-chart";
-import { SpendingByCategoryChart } from "@/components/features/analytics/spending-by-category-chart";
 import { RecentTransactions } from "@/components/features/dashboard/home/recent-transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/card";
 import { useDashboardSummary } from "@/hooks/use-analytics";
 import { TrendsOverview } from "@/components/features/analytics/trends/trends-overview";
 import { BreakdownAnalytics } from "@/components/features/analytics/breakdown/breakdown-analytics";
+import { SeasonalBreakdown } from "@/components/features/analytics/seasonal/seasonal-breakdown";
 
 export function AnalyticsContent() {
     const { data: summary } = useDashboardSummary();
@@ -54,9 +54,9 @@ export function AnalyticsContent() {
                 </Card>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-1 xl:grid-cols-2">
                 <SpendingTrendChart />
-                <SpendingByCategoryChart />
+                <SeasonalBreakdown />
             </div>
 
             <RecentTransactions />

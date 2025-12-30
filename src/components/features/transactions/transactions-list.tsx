@@ -16,6 +16,7 @@ import { Transaction, PaginatedTransactionsResponse } from "@/types/dashboard";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { DeleteTransactionModal } from "./delete-transaction-modal";
 import { Badge } from "@/components/atoms/badge";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function TransactionsList() {
     const {
@@ -25,6 +26,8 @@ export function TransactionsList() {
         isFetchingNextPage,
         isLoading
     } = useInfiniteTransactions();
+
+    const { symbol } = useCurrency();
 
     const transactions = data?.pages.flatMap((page: PaginatedTransactionsResponse) => page.data) || [];
 
@@ -117,7 +120,7 @@ export function TransactionsList() {
                                             </span>
                                         </div>
                                         <div className={`col-span-1 font-semibold whitespace-nowrap ${transaction?.type === 'expense' ? 'text-destructive' : 'text-primary'}`}>
-                                            {transaction?.type === 'expense' ? '-' : '+'}৳{transaction?.amount.toFixed(2)}
+                                            {transaction?.type === 'expense' ? '-' : '+'}{symbol}{transaction?.amount.toFixed(2)}
                                         </div>
                                         <div className="col-span-1">
                                             <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${transaction?.type === 'expense' ? 'bg-destructive/95 text-white' : 'bg-primary/10 text-primary'

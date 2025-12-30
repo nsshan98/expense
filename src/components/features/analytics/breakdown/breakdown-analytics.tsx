@@ -122,7 +122,28 @@ export function BreakdownAnalytics() {
                                         }
                                     }
                                 }}
+                                numberOfMonths={1}
+                                className="md:hidden"
+                            />
+                            <CalendarComponent
+                                mode="range"
+                                selected={{ from: tempDateRange.from, to: tempDateRange.to }}
+                                onSelect={(range) => {
+                                    if (range) {
+                                        // Update temporary selection
+                                        setTempDateRange({ from: range.from, to: range.to });
+
+                                        // Only update actual date range and close when:
+                                        // 1. Both dates are selected
+                                        // 2. The dates are different (not the same day)
+                                        if (range.from && range.to && range.from.getTime() !== range.to.getTime()) {
+                                            setDateRange({ from: range.from, to: range.to });
+                                            setIsCalendarOpen(false);
+                                        }
+                                    }
+                                }}
                                 numberOfMonths={2}
+                                className="hidden md:block"
                             />
                         </PopoverContent>
                     </Popover>
@@ -148,7 +169,7 @@ export function BreakdownAnalytics() {
             ) : (
                 <>
                     {/* Summary and Chart Row */}
-                    <div className="grid gap-6 md:grid-cols-2">
+                    <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
                         <BreakdownSummary
                             totalSpend={data.total_spend}
                             transactionCount={totalTransactions}
