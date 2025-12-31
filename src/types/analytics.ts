@@ -30,6 +30,7 @@ export interface MonthlySpending {
 
 export interface AnalyticsTrendsSuccessResponse {
     status: 'success';
+    available_years?: number[];
     mom_analysis: MomAnalysis;
     weekend_vs_weekday?: WeekdayWeekendAnalysis;
     seasonality?: MonthlySpending[];

@@ -39,11 +39,16 @@ export const useDashboardSummary = () => {
     return { data: summary, isLoading };
 };
 
-export const useAnalyticsTrends = () => {
+export const useAnalyticsTrends = (year?: number) => {
     return useQuery({
-        queryKey: ['analytics-trends'],
+        queryKey: ['analytics-trends', year],
         queryFn: async () => {
-            const { data } = await axiosClient.get<import('@/types/analytics').AnalyticsTrendsResponse>('/analytics/trends');
+            const params = new URLSearchParams();
+            if (year) params.append('year', year.toString());
+
+            const { data } = await axiosClient.get<import('@/types/analytics').AnalyticsTrendsResponse>(
+                `/analytics/trends?${params.toString()}`
+            );
             return data;
         },
     });

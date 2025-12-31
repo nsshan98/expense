@@ -86,7 +86,7 @@ export function SubscriptionBanner() {
                         <Button
                             size="sm"
                             variant="secondary"
-                            className="w-full text-indigo-700 font-bold hover:bg-white/90"
+                            className="w-full text-indigo-700 dark:text-indigo-50 font-bold hover:text-indigo-500"
                             onClick={() => setIsModalOpen(true)}
                         >
                             Get Started

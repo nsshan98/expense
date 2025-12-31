@@ -59,6 +59,7 @@ export function QuickAddBar() {
                 name: data.name,
                 amount: parseFloat(data.amount),
                 date: new Date().toISOString(),
+                note: data.note,
                 // Type is optional in the create payload, often defaults to expense on backend or we can pass it if needed.
             });
             toast.success("Expense added successfully");
@@ -66,6 +67,7 @@ export function QuickAddBar() {
                 name: "",
                 amount: "",
                 date: new Date().toISOString(),
+                note: "",
             });
             setDebouncedName(""); // Reset suggestions
         } catch (error) {
@@ -116,6 +118,27 @@ export function QuickAddBar() {
                                             onMergeClick={() => setIsMergeModalOpen(true)}
                                         />
                                     </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="note"
+                        render={({ field }) => (
+                            <FormItem className="flex-1 w-full">
+                                <FormControl>
+                                    <InputGroup>
+                                        <InputGroupInput
+                                            placeholder="Note (optional)"
+                                            {...field}
+                                        />
+                                        <InputGroupAddon>
+                                            <Tag className="h-4 w-4" />
+                                        </InputGroupAddon>
+                                    </InputGroup>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

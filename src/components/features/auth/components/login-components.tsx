@@ -20,6 +20,7 @@ import { loginSchema, LoginSchemaType } from "@/zod/auth-schema";
 import Link from "next/link";
 import { signIn } from "@/lib/auth";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/atoms/input-group";
+import AuthHeader from "@/components/organisms/auth-header";
 
 
 export default function LoginComponent() {
@@ -86,6 +87,7 @@ export default function LoginComponent() {
 
             {/* Main Card */}
             <div className="relative z-10 w-full max-w-md p-8 bg-card rounded-2xl shadow-xl border border-border">
+                <AuthHeader />
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold text-foreground tracking-tight">Welcome Back</h1>
                     <p className="text-muted-foreground mt-2 text-sm">Login to your Expense Tracker Account</p>

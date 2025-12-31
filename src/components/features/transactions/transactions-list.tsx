@@ -17,15 +17,44 @@ import { EditTransactionModal } from "./edit-transaction-modal";
 import { DeleteTransactionModal } from "./delete-transaction-modal";
 import { Badge } from "@/components/atoms/badge";
 import { useCurrency } from "@/contexts/currency-context";
+import { Input } from "@/components/atoms/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/atoms/select";
+import { Label } from "@/components/atoms/label";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/atoms/popover";
+import { Calendar } from "@/components/atoms/calendar";
 
 export function TransactionsList() {
+    const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [type, setType] = useState<'expense' | 'income' | 'all'>('all');
+    const [date, setDate] = useState<DateRange | undefined>();
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [tempDate, setTempDate] = useState<DateRange | undefined>(date);
+
+    // Debounce search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [search]);
+
     const {
         data,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
         isLoading
-    } = useInfiniteTransactions();
+    } = useInfiniteTransactions({
+        search: debouncedSearch,
+        type: type === 'all' ? undefined : type,
+        startDate: (date?.from && date?.to) ? format(date.from, 'dd-MM-yyyy') : undefined,
+        endDate: (date?.from && date?.to) ? format(date.to, 'dd-MM-yyyy') : undefined,
+    });
 
     const { symbol } = useCurrency();
 
@@ -92,6 +121,109 @@ export function TransactionsList() {
                     <CardTitle>All Transactions</CardTitle>
                 </CardHeader>
                 <CardContent>
+                    <div className="flex flex-col md:flex-row gap-4 mb-6">
+                        <div className="flex-1">
+                            <Input
+                                placeholder="Search transactions..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full"
+                            />
+                        </div>
+                        <div className="">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div>
+                                    <Select
+                                        value={type}
+                                        onValueChange={(val: 'expense' | 'income' | 'all') => setType(val)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            <SelectItem value="expense">Expense</SelectItem>
+                                            <SelectItem value="income">Income</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Popover
+                                        open={isCalendarOpen}
+                                        onOpenChange={(open) => {
+                                            setIsCalendarOpen(open);
+                                            if (open) {
+                                                setTempDate(date);
+                                            }
+                                        }}
+                                    >
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                id="date"
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full md:w-[300px] justify-start text-left font-normal",
+                                                    !date?.to && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                <span className="text-sm font-medium">Date Period</span>
+                                                {date?.from && date?.to && (
+                                                    <div className="ml-auto pl-4 text-xs text-muted-foreground">
+                                                        {format(date.from, "dd-MM-yyyy")} - {format(date.to, "dd-MM-yyyy")}
+                                                    </div>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="range"
+                                                defaultMonth={date?.from}
+                                                selected={tempDate}
+                                                onSelect={(newDate) => {
+                                                    setTempDate(newDate);
+                                                    if (newDate?.from && newDate?.to && newDate.from.getTime() !== newDate.to.getTime()) {
+                                                        setDate(newDate);
+                                                        setIsCalendarOpen(false);
+                                                    }
+                                                }}
+                                                numberOfMonths={1}
+                                                className="md:hidden"
+                                            />
+                                            <Calendar
+                                                mode="range"
+                                                defaultMonth={date?.from}
+                                                selected={tempDate}
+                                                onSelect={(newDate) => {
+                                                    setTempDate(newDate);
+                                                    if (newDate?.from && newDate?.to && newDate.from.getTime() !== newDate.to.getTime()) {
+                                                        setDate(newDate);
+                                                        setIsCalendarOpen(false);
+                                                    }
+                                                }}
+                                                numberOfMonths={2}
+                                                className="hidden md:block"
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
+                            {(search || type !== 'all' || (date?.from && date?.to)) && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => {
+                                        setSearch("");
+                                        setType("all");
+                                        setDate(undefined);
+                                        setTempDate(undefined);
+                                    }}
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+
                     <div className="space-y-2 overflow-x-auto pb-4">
                         <div className="min-w-[1000px]">
                             <div className="grid grid-cols-12 text-sm font-medium text-muted-foreground mb-2 px-2 gap-4">
@@ -113,7 +245,14 @@ export function TransactionsList() {
                                         <div className="col-span-1 text-muted-foreground whitespace-nowrap">
                                             {transaction?.created_at ? new Date(transaction.created_at).toLocaleDateString() : '-'}
                                         </div>
-                                        <div className="col-span-3 font-medium truncate capitalize" title={transaction?.name}>{transaction?.name}</div>
+                                        <div className="col-span-3 font-medium truncate capitalize" title={transaction?.name}>
+                                            {transaction?.name}
+                                            {transaction?.note && (
+                                                <div className="text-xs text-muted-foreground font-normal truncate">
+                                                    {transaction.note}
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className="col-span-2">
                                             <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary whitespace-nowrap capitalize">
                                                 {typeof transaction?.category === 'string' ? transaction?.category : transaction?.category?.name}

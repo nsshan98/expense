@@ -8,6 +8,7 @@ export interface Transaction {
     amount: number;
     type: 'income' | 'expense';
     normalized_name: string;
+    note?: string;
 }
 
 export interface PaginatedTransactionsResponse {
@@ -100,6 +101,7 @@ export interface CreateExpensePayload {
     amount: number;
     category?: string;
     date?: string;
+    note?: string;
 }
 export interface TrendAnalysis {
     chart_data: Array<{

@@ -87,7 +87,7 @@ export default function ProjectionPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row gap-2 items-start justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
                         End of Month Projections
@@ -97,13 +97,13 @@ export default function ProjectionPage() {
                     </p>
                 </div>
                 {/* Period Information */}
-                <div className="flex items-center gap-4 flex-wrap">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
+                <div className="flex flex-col md:flex-row gap-2">
+                    <div className="flex items-center gap-2 px-2 py-2 bg-muted rounded-lg">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Current Date:</span>
                         <span className="text-sm font-semibold">{data.period.current_date}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg">
+                    <div className="flex items-center gap-2 px-2 py-2 bg-muted rounded-lg">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Days Remaining:</span>
                         <span className="text-sm font-semibold">{data.period.days_remaining}</span>

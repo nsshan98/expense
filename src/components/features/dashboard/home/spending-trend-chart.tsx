@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/car
 import { useDashboard } from "@/hooks/use-analytics";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Skeleton } from "@/components/atoms/skeleton";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function SpendingTrendChart() {
     const { data: dashboardData, isLoading } = useDashboard();
+    const { symbol, formatAmount } = useCurrency();
 
     // Fallback data
     const data = dashboardData?.trend_analysis.chart_data || [];
@@ -60,9 +62,7 @@ export function SpendingTrendChart() {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                // Date is already formatted in payload (e.g. "Nov 29") or fullDate
-                                // payload `date` is "Nov 29", `fullDate` is "2025-11-29"
-                                // We can just use `date` as is or format `fullDate`
+                                // Date is already formatted in payload (e.g. "Nov 29")
                                 tickFormatter={(value) => value}
                             />
                             <YAxis
@@ -70,9 +70,12 @@ export function SpendingTrendChart() {
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
-                                tickFormatter={(value) => `$${value}`}
+                                tickFormatter={(value) => `${symbol}${value}`}
                             />
-                            <Tooltip />
+                            <Tooltip
+                                formatter={(value: number) => formatAmount(value)}
+                                labelStyle={{ color: "black" }}
+                            />
                             <Area
                                 type="monotone"
                                 dataKey="predicted"
@@ -80,6 +83,7 @@ export function SpendingTrendChart() {
                                 strokeDasharray="5 5"
                                 fillOpacity={1}
                                 fill="url(#colorPredicted)"
+                                name="Forecast"
                             />
                             <Area
                                 type="monotone"
@@ -87,6 +91,7 @@ export function SpendingTrendChart() {
                                 stroke="var(--primary)"
                                 fillOpacity={1}
                                 fill="url(#colorAmount)"
+                                name="Actual"
                             />
                         </AreaChart>
                     </ResponsiveContainer>

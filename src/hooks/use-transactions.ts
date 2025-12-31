@@ -8,7 +8,7 @@ export const useTransactions = () => {
         queryKey: ['transactions'],
         queryFn: async () => {
             const { data } = await axiosClient.get<PaginatedTransactionsResponse>('/transactions/all', {
-                params: { limit: 100 }
+                params: { limit: 10 }
             });
             return data.data.map((t: any) => ({
                 ...t,
@@ -18,14 +18,20 @@ export const useTransactions = () => {
     });
 };
 
-export const useInfiniteTransactions = () => {
+export const useInfiniteTransactions = (filters?: {
+    startDate?: string;
+    endDate?: string;
+    search?: string;
+    type?: 'expense' | 'income' | 'all';
+}) => {
     return useInfiniteQuery({
-        queryKey: ['transactions', 'infinite'],
+        queryKey: ['transactions', 'infinite', filters],
         queryFn: async ({ pageParam = 0 }) => {
             const { data } = await axiosClient.get<PaginatedTransactionsResponse>('/transactions/all', {
                 params: {
-                    limit: 5,
+                    limit: 10,
                     offset: pageParam,
+                    ...filters,
                 },
             });
             return {

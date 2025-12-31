@@ -24,6 +24,7 @@ import { useCreateUser } from "../hooks/auth-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { isAxiosError } from "axios";
+import AuthHeader from "@/components/organisms/auth-header";
 
 const SignupForm = () => {
   const router = useRouter()
@@ -103,6 +104,7 @@ const SignupForm = () => {
 
       {/* Main Card */}
       <div className="relative z-10 w-full max-w-md p-8 bg-card rounded-2xl shadow-xl border border-border">
+        <AuthHeader />
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">Create Your Account</h1>
           <p className="text-muted-foreground mt-2 text-sm">Start tracking your expenses today</p>

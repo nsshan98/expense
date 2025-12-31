@@ -25,6 +25,7 @@ export const editTransactionSchema = z.object({
     }),
     categoryId: z.string().min(1, "Category is required"),
     date: z.string().min(1, "Date is required"),
+    note: z.string().optional(),
     // type: z.enum(["income", "expense"]),
 });
 
@@ -39,6 +40,7 @@ export const quickAddSchema = z.object({
         message: "Amount must be a positive number",
     }),
     date: z.string().optional(),
+    note: z.string().optional(),
     // type is handled implicitly or via default
 });
 

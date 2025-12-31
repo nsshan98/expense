@@ -18,7 +18,7 @@ export function SeasonalBreakdown() {
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
-    const { data, isLoading, error } = useAnalyticsTrends();
+    const { data, isLoading, error } = useAnalyticsTrends(selectedYear);
 
     // Get seasonality data
     const seasonalityData = useMemo(() => {
@@ -32,15 +32,20 @@ export function SeasonalBreakdown() {
         return seasonalityData.find((m: any) => m.is_peak);
     }, [seasonalityData]);
 
-    // Generate year options (from 2020 to current year)
+    // Generate year options from API response or fallback to current year
     const yearOptions = useMemo(() => {
+        if (data?.status === 'success' && data.available_years && data.available_years.length > 0) {
+            return [...data.available_years].sort((a, b) => b - a); // Descending order
+        }
+
+        // Fallback options if no data yet (e.g. loading or error)
         const startYear = 2020;
         const years = [];
         for (let year = startYear; year <= currentYear; year++) {
             years.push(year);
         }
-        return years.reverse(); // Most recent first
-    }, [currentYear]);
+        return years.reverse();
+    }, [data, currentYear]);
 
     // Custom tooltip
     const CustomTooltip = ({ active, payload }: any) => {

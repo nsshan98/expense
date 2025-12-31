@@ -90,6 +90,7 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                 amount: transaction.amount.toString(),
                 categoryId: catId,
                 date: transaction.date ? transaction.date.split('T')[0] : "",
+                note: transaction.note || "",
                 // type: transaction.type,
             });
         }
@@ -105,6 +106,7 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                 amount: parseFloat(data.amount),
                 categoryId: data.categoryId,
                 date: new Date(data.date).toISOString(),
+                note: data.note,
                 // type: data.type,
             });
             toast.success("Transaction updated successfully");
@@ -151,6 +153,19 @@ export function EditTransactionModal({ isOpen, onClose, transaction }: EditTrans
                                                 onMergeClick={() => setIsMergeModalOpen(true)}
                                             />
                                         </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="note"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Note (Optional)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Add a note" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

@@ -27,7 +27,8 @@ Successfully implemented dynamic currency support across the entire application 
 5. ✅ `breakdown-summary.tsx` - Total spend summary
 6. ✅ `category-breakdown-list.tsx` - Category details
 7. ✅ `recent-transactions.tsx` - Recent transactions widget
-8. ✅ `category-budget-list.tsx` - Budget widget
+8. ✅ `spending-trend-chart.tsx` - 30-Day spending trend chart
+9. ✅ `category-budget-list.tsx` - Budget widget
 
 ### Budgets (4)
 9. ✅ `budget-list.tsx` - Main budget list

@@ -94,7 +94,7 @@ export function BreakdownAnalytics() {
                         }}
                     >
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full md:w-auto justify-start text-left font-normal">
+                            <Button variant="outline" className="w-80 sm:w-full md:w-auto justify-start text-left font-normal">
                                 <Calendar className="mr-2 h-4 w-4" />
                                 <span className="text-sm font-medium">Date Period</span>
                                 {dateRange.from && dateRange.to && (
