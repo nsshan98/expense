@@ -51,6 +51,7 @@ export async function getSession() {
     });
 
     // Ensure user object has email to match type, though runtime it might be missing if old cookie
+    console.log("Session decrypted payload:", JSON.stringify({ ...payload, accessToken: 'HIDDEN', refreshToken: payload.refreshToken ? (payload.refreshToken as string).substring(0, 10) + '...' : 'MISSING' }));
     return payload as unknown as Session;
   } catch (err) {
     console.error("Failed to verify the session", err);
