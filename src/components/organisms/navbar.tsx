@@ -2,6 +2,8 @@
 
 import { Orbit, Menu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { ThemeToggle } from "@/components/organisms/theme-toggle";
 import { Button } from "../atoms/button";
 import {
@@ -12,17 +14,46 @@ import {
 } from "../atoms/sheet";
 
 const menuItems = [
-    { label: "Features", href: "#features" },
-    { label: "Why Us", href: "#why-us" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
+    { label: "Features", href: "/#features" },
+    { label: "Why Us", href: "/#why-us" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "FAQ", href: "/#faq" },
 ];
 
 export default function Navbar() {
+    const pathname = usePathname();
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
+        // We only want to intervene if we are on the home page and trying to scroll to a section
+        if (pathname === "/" && href.startsWith("/#")) {
+            e.preventDefault();
+            const hash = href.replace("/", "");
+            const element = document.querySelector(hash);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+        // Always close mobile menu on click
+        setIsOpen(false);
+    };
+
+    const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        if (pathname === "/") {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        setIsOpen(false);
+    }
+
     return (
         <div className="fixed top-6 left-0 right-0 z-50 px-4 flex justify-center">
             <header className="flex items-center justify-between py-2.5 pl-6 pr-3 max-w-5xl w-full bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl rounded-full border border-slate-200/50 dark:border-slate-700/50 shadow-lg shadow-indigo-500/5">
-                <Link href="#" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <Link
+                    href="/"
+                    onClick={handleLogoClick}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
                     <div className="bg-primary p-1.5 rounded-full text-white">
                         <Orbit size={20} className="text-white" />
                     </div>
@@ -35,6 +66,7 @@ export default function Navbar() {
                         <Link
                             key={item.label}
                             href={item.href}
+                            onClick={(e) => handleScroll(e, item.href)}
                             className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary transition-colors"
                         >
                             {item.label}
@@ -52,7 +84,7 @@ export default function Navbar() {
                 {/* Mobile Menu Toggle */}
                 <div className="md:hidden flex items-center gap-4">
                     <ThemeToggle />
-                    <Sheet>
+                    <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
                             <button className="text-slate-900 dark:text-white p-1">
                                 <Menu size={24} />
@@ -65,6 +97,7 @@ export default function Navbar() {
                                     <Link
                                         key={item.label}
                                         href={item.href}
+                                        onClick={(e) => handleScroll(e, item.href)}
                                         className="text-lg font-medium text-slate-600 dark:text-slate-300 hover:text-primary transition-colors"
                                     >
                                         {item.label}

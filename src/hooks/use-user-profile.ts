@@ -27,3 +27,25 @@ export const useChangeUserPassword = () => {
         },
     });
 };
+
+export const useUpdateApiKey = () => {
+    return useMutation({
+        mutationFn: async ({ userId, apiKey }: { userId: string; apiKey: string }) => {
+            const { data: response } = await axiosClient.patch(`/users/${userId}`, {
+                geminiApiKey: apiKey
+            });
+            return response;
+        },
+    });
+};
+
+export const useRemoveApiKey = () => {
+    return useMutation({
+        mutationFn: async ({ userId }: { userId: string }) => {
+            const { data: response } = await axiosClient.patch(`/users/${userId}`, {
+                geminiApiKey: null
+            });
+            return response;
+        },
+    });
+};

@@ -3,6 +3,14 @@
 import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/atoms/button";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/atoms/table";
 import { usePlans } from "@/hooks/use-plans";
 import { Plan } from "@/types/subscription";
 
@@ -16,7 +24,7 @@ const formatFeature = (key: string, value: string | number | boolean) => {
     return `${formattedKey}: ${value}`;
 };
 
-export default function LandingPricing() {
+export default function PricingPageContainer() {
     const [isAnnual, setIsAnnual] = useState(false);
     const { data: plans, isLoading, error } = usePlans();
 
@@ -25,18 +33,14 @@ export default function LandingPricing() {
     const sortedPlans = plans?.sort((a, b) => {
         const indexA = order.indexOf(a.name);
         const indexB = order.indexOf(b.name);
-        // If both are in the order array, sort by index
         if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        // If only A is in order, it comes first
         if (indexA !== -1) return -1;
-        // If only B is in order, it comes first
         if (indexB !== -1) return 1;
-        // Otherwise sort by existing logic (price)
         return (a.price_monthly || 0) - (b.price_monthly || 0);
     });
 
     return (
-        <section id="pricing" className="py-24 px-6 md:px-12 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <section id="pricing" className="min-h-screen py-24 px-6 md:px-12 relative overflow-hidden bg-white dark:bg-slate-950">
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center max-w-3xl mx-auto mb-16">
@@ -153,6 +157,80 @@ export default function LandingPricing() {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+                {/* Feature Comparison Section */}
+                {!isLoading && !error && sortedPlans && sortedPlans.length > 0 && (
+                    <div className="max-w-7xl mx-auto mt-32 relative z-10">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                                Comparison table
+                            </h2>
+                            <p className="text-slate-500 dark:text-slate-400">
+                                Detailed breakdown of what's included in each plan
+                            </p>
+                        </div>
+
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
+                                    <TableHead className="py-6 px-6 text-lg font-semibold text-slate-900 dark:text-white min-w-[200px]">
+                                        Features
+                                    </TableHead>
+                                    {sortedPlans.map((plan) => (
+                                        <TableHead key={plan.id} className="py-6 px-6 text-center text-lg font-semibold text-slate-900 dark:text-white min-w-[150px]">
+                                            {plan.name}
+                                        </TableHead>
+                                    ))}
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {/* Extract all unique feature keys from the plans */}
+                                {Array.from(new Set(sortedPlans.flatMap(p => Object.keys(p.features)))).map((featureKey) => {
+                                    const formattedLabel = featureKey.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+                                    return (
+                                        <TableRow key={featureKey} className="group hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border-slate-100 dark:border-slate-800">
+                                            <TableCell className="py-6 px-6 text-slate-600 dark:text-slate-300 font-medium">
+                                                {formattedLabel}
+                                            </TableCell>
+                                            {sortedPlans.map((plan) => {
+                                                const value = plan.features[featureKey];
+
+                                                return (
+                                                    <TableCell key={`${plan.id}-${featureKey}`} className="py-4 px-6 text-center">
+                                                        <div className="flex justify-center">
+                                                            {typeof value === 'boolean' ? (
+                                                                value ? (
+                                                                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                                                                        <Check size={16} strokeWidth={3} />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-500 dark:text-rose-400 flex items-center justify-center">
+                                                                        <span className="text-sm font-bold">✕</span>
+                                                                    </div>
+                                                                )
+                                                            ) : (
+                                                                // Handle numbers/strings or undefined
+                                                                value !== undefined ? (
+                                                                    <span className="font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 py-1 px-3 rounded-md text-sm">
+                                                                        {value}
+                                                                    </span>
+                                                                ) : (
+                                                                    <div className="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-500 dark:text-rose-400 flex items-center justify-center">
+                                                                        <span className="text-sm font-bold">✕</span>
+                                                                    </div>
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                );
+                                            })}
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
                     </div>
                 )}
             </div>

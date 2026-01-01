@@ -8,12 +8,16 @@ import { InsightsPanel } from "@/components/features/dashboard/home/insights-pan
 import { RecentTransactions } from "@/components/features/dashboard/home/recent-transactions";
 import { WelcomeBanner } from "@/components/features/dashboard/home/welcome-banner";
 
-export function DashboardContent() {
+interface DashboardContentProps {
+    hasApiKey?: boolean;
+}
+
+export function DashboardContent({ hasApiKey }: DashboardContentProps) {
     return (
         <>
             <WelcomeBanner />
 
-            <QuickAddBar />
+            <QuickAddBar hasApiKey={hasApiKey} />
 
             <SummaryCards />
 

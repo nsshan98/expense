@@ -1,7 +1,15 @@
 import { TransactionsList } from "@/components/features/transactions/transactions-list";
 import { QuickAddBar } from "@/components/features/dashboard/home/quick-add-bar";
+import { getCurrentUser } from "@/services/user";
+import { redirect } from "next/navigation";
 
-export default function TransactionsPage() {
+export default async function TransactionsPage() {
+    const user = await getCurrentUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
     return (
         <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
@@ -11,7 +19,7 @@ export default function TransactionsPage() {
                 </p>
             </div>
 
-            <QuickAddBar />
+            <QuickAddBar hasApiKey={user.hasGeminiKey} />
 
             <TransactionsList />
         </div>

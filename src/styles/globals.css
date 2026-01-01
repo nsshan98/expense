@@ -146,7 +146,7 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth; Removed to fix cross-page navigation */
   }
 
   body {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Key, Check, X, Trash2 } from "lucide-react";
+import { Loader2, Key, Check, X, Trash2, Info, ExternalLink } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import {
     Form,
@@ -17,8 +17,6 @@ import {
 } from "@/components/atoms/form";
 import { Input } from "@/components/atoms/input";
 import { ApiKeySchema, ApiKeyFormValues } from "@/zod/api-key-schema";
-import { useMutation } from "@tanstack/react-query";
-import { axiosClient } from "@/lib/axios-client";
 import { useRouter } from "next/navigation";
 import {
     AlertDialog,
@@ -31,6 +29,8 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/atoms/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/atoms/alert";
+import { useUpdateApiKey, useRemoveApiKey } from "@/hooks/use-user-profile";
 
 interface ApiKeyFormProps {
     userId: string;
@@ -50,53 +50,74 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
         },
     });
 
-    const updateApiKeyMutation = useMutation({
-        mutationFn: async (data: ApiKeyFormValues) => {
-            const { data: response } = await axiosClient.patch(`/users/${userId}`, data);
-            return response;
-        },
-        onSuccess: () => {
-            toast.success("API Key updated successfully");
-            setIsEditing(false);
-            form.reset();
-            router.refresh();
-        },
-        onError: (error: any) => {
-            console.error("Failed to update API key:", error);
-            const message = error?.response?.data?.message || "Failed to update API key";
-            toast.error(message);
-        },
-    });
-
-    const removeApiKeyMutation = useMutation({
-        mutationFn: async () => {
-            const { data: response } = await axiosClient.patch(`/users/${userId}`, {
-                geminiApiKey: null
-            });
-            return response;
-        },
-        onSuccess: () => {
-            toast.success("API Key removed successfully");
-            setIsDeleting(false);
-            router.refresh();
-        },
-        onError: (error: any) => {
-            console.error("Failed to remove API key:", error);
-            const message = error?.response?.data?.message || "Failed to remove API key";
-            toast.error(message);
-        },
-    });
+    const updateApiKey = useUpdateApiKey();
+    const removeApiKey = useRemoveApiKey();
 
     async function onSubmit(data: ApiKeyFormValues) {
-        await updateApiKeyMutation.mutateAsync(data);
+        await updateApiKey.mutateAsync(
+            { userId, apiKey: data.geminiApiKey },
+            {
+                onSuccess: () => {
+                    toast.success("API Key updated successfully");
+                    setIsEditing(false);
+                    form.reset();
+                    router.refresh();
+                },
+                onError: (error: any) => {
+                    console.error("Failed to update API key:", error);
+                    const message = error?.response?.data?.message || "Failed to update API key";
+                    toast.error(message);
+                },
+            }
+        );
     }
 
     async function onRemove() {
-        await removeApiKeyMutation.mutateAsync();
+        await removeApiKey.mutateAsync(
+            { userId },
+            {
+                onSuccess: () => {
+                    toast.success("API Key removed successfully");
+                    setIsDeleting(false);
+                    router.refresh();
+                },
+                onError: (error: any) => {
+                    console.error("Failed to remove API key:", error);
+                    const message = error?.response?.data?.message || "Failed to remove API key";
+                    toast.error(message);
+                },
+            }
+        );
     }
 
     return (
         <div className="space-y-4">
+            <Alert className="bg-blue-50/50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-800">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertTitle className="text-blue-800 dark:text-blue-300 font-bold flex items-center gap-2">
+                    How to get your API Key
+                </AlertTitle>
+                <AlertDescription className="text-blue-700 dark:text-blue-400 mt-2 text-sm leading-relaxed">
+                    <ol className="list-decimal list-inside space-y-1">
+                        <li>
+                            Go to{" "}
+                            <a
+                                href="https://aistudio.google.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium underline underline-offset-4 hover:text-blue-900 dark:hover:text-blue-200 inline-flex items-center gap-1"
+                            >
+                                Google AI Studio <ExternalLink className="h-3 w-3" />
+                            </a>
+                        </li>
+                        <li>Click <strong>&quot;Get API key&quot;</strong></li>
+                        <li>Click <strong>&quot;Create API key&quot;</strong></li>
+                        <li>Name your key & Select project</li>
+                        <li>Copy the API key</li>
+                    </ol>
+                </AlertDescription>
+            </Alert>
+
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
                 <div className="flex items-center space-x-4">
                     <div className="p-2 bg-primary/10 rounded-full">
@@ -140,16 +161,16 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel disabled={removeApiKeyMutation.isPending}>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel disabled={removeApiKey.isPending}>Cancel</AlertDialogCancel>
                                     <AlertDialogAction
                                         onClick={(e) => {
                                             e.preventDefault();
                                             onRemove();
                                         }}
-                                        disabled={removeApiKeyMutation.isPending}
+                                        disabled={removeApiKey.isPending}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                     >
-                                        {removeApiKeyMutation.isPending ? (
+                                        {removeApiKey.isPending ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                 Removing...
@@ -204,9 +225,9 @@ export function ApiKeyForm({ userId, hasKey = false, maskedKey }: ApiKeyFormProp
                             <div className="flex justify-end gap-2">
                                 <Button
                                     type="submit"
-                                    disabled={form.formState.isSubmitting || updateApiKeyMutation.isPending}
+                                    disabled={form.formState.isSubmitting || updateApiKey.isPending}
                                 >
-                                    {form.formState.isSubmitting || updateApiKeyMutation.isPending ? (
+                                    {form.formState.isSubmitting || updateApiKey.isPending ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                             Saving...
