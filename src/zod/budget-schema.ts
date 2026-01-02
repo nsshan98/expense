@@ -35,6 +35,7 @@ export type EditBudgetFormValues = z.infer<typeof editBudgetSchema>;
 
 export const budgetItemSchema = z.object({
     category: z.string().min(1, "Category name is required"),
+    type: z.enum(["EXPENSE", "INCOME"]),
     amount: z.string().refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
         message: "Amount must be a positive number",
     }),

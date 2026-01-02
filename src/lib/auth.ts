@@ -21,7 +21,7 @@ export async function signIn(
   }
 
   const url = `${process.env.API_SERVER_BASE_URL}/auth/login`;
-  console.log("Attempting login to:", url);
+  // console.log("Attempting login to:", url);
 
   let shouldRedirect = false;
 
@@ -34,10 +34,12 @@ export async function signIn(
       body: JSON.stringify(validatedFields.data),
     });
 
-    console.log("Login response status:", response.status);
+    // console.log("Login response status:", response.status);
 
     if (response.ok) {
       const result = await response.json();
+
+      // console.log("Login response:", result);
 
       const accessToken = result.accessToken || result.access_token;
       const refreshToken = result.refreshToken || result.refresh_token;
@@ -85,13 +87,16 @@ export const refreshToken = async (oldRefreshToken: string) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          refresh: oldRefreshToken,
+          refreshToken: oldRefreshToken,
         }),
       }
     );
 
+    // console.log("Refresh response:", response);
+
     if (!response.ok) {
-      throw new Error("Failed to refresh token" + response.statusText);
+      const errorText = await response.text();
+      throw new Error(`Failed to refresh token: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const result = await response.json();
